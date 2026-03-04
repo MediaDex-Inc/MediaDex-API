@@ -1,10 +1,232 @@
 basePath: /api/v1
+definitions:
+  media.MediaRequest:
+    properties:
+      completion_date:
+        type: string
+      description:
+        type: string
+      genre:
+        type: string
+      img_url:
+        type: string
+      media_type:
+        type: string
+      name:
+        type: string
+      notes:
+        type: string
+      rating:
+        type: integer
+      start_date:
+        type: string
+      status:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  media.MediaResponse:
+    properties:
+      completion_date:
+        type: string
+      description:
+        type: string
+      genre:
+        type: string
+      img_url:
+        type: string
+      media_type:
+        type: string
+      name:
+        type: string
+      notes:
+        type: string
+      rating:
+        type: integer
+      start_date:
+        type: string
+      status:
+        type: string
+      user_id:
+        type: integer
+    type: object
 info:
   contact: {}
   description: This is the MediaDex API
   title: MediaDex API
   version: "1.0"
-paths: {}
+paths:
+  /api/v1/media:
+    get:
+      description: Retrieve all media
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/media.MediaResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get all media
+      tags:
+      - Media
+    post:
+      consumes:
+      - application/json
+      description: Creates a new Media entry in the database
+      parameters:
+      - description: Media creation payload
+        in: body
+        name: media
+        required: true
+        schema:
+          $ref: '#/definitions/media.MediaRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/media.MediaResponse'
+        "400":
+          description: Invalid Media POST request payload !
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Failed to create Media !
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create a new Media
+      tags:
+      - Media
+  /api/v1/media/{id}:
+    delete:
+      description: Deletes a media from the database by its ID
+      parameters:
+      - description: Media ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Media deleted successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Media not found !
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Failed to delete Media !
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete a media
+      tags:
+      - Media
+    get:
+      description: Retrieves a specific media from the database by its ID
+      parameters:
+      - description: media ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/media.MediaResponse'
+        "404":
+          description: Media not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Failed to find specific Media !
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get media by ID
+      tags:
+      - Media
+    patch:
+      consumes:
+      - application/json
+      description: Update an existing media
+      parameters:
+      - description: Media ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Updated media payload
+        in: body
+        name: media
+        required: true
+        schema:
+          $ref: '#/definitions/media.MediaRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/media.MediaResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update a media
+      tags:
+      - Media
 securityDefinitions:
   BearerAuth:
     in: header

@@ -1,7 +1,7 @@
 package media
 
 import (
-	"mediadex/mediadex-API/config"
+	"mediadex/config"
 
 	"github.com/go-chi/chi/v5"
 )

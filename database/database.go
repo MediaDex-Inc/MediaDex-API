@@ -2,6 +2,7 @@ package database
 
 import (
 	"fmt"
+	"mediadex/database/dbmodel"
 
 	"gorm.io/gorm"
 )

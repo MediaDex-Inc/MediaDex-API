@@ -3,7 +3,15 @@ package main
 import (
 	"log"
 	"mediadex/config"
+	"mediadex/pkg/authentication"
+	"mediadex/pkg/collection"
+	"mediadex/pkg/field"
+	"mediadex/pkg/media"
+	"mediadex/pkg/tag"
+	"mediadex/pkg/user"
 	"net/http"
+
+	_ "mediadex/docs"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
@@ -28,7 +36,7 @@ func Routes(configuration *config.Config) *chi.Mux {
 	router.Mount("/api/v1/auth", authentication.Routes(configuration))
 
 	router.Route("/api/v1", func(r chi.Router) {
-		r.Use(authentication.AuthMiddleware(configuration.Constants.JWTSecret))
+		//r.Use(authentication.AuthMiddleware(configuration.Constants.JWTSecret))
 		r.Mount("/collections", collection.Routes(configuration))
 		r.Mount("/fields", field.Routes(configuration))
 		r.Mount("/media", media.Routes(configuration))

@@ -8,17 +8,17 @@ import (
 
 type Media struct {
 	gorm.Model
-	userId         int     `json:"user_id"`
-	name           string  `json:"name"`
-	status         string  `json:"status"`
-	mediaType      string  `json:"media_type"`
-	imgURL         *string `json:"img_url"`
-	rating         *int    `json:"rating"`
-	notes          *string `json:"notes"`
-	description    *string `json:"description"`
-	genre          *string `json:"genre"`
-	startDate      *t.Time `json:"start_date"`
-	completionDate *t.Time `json:"completion_date"`
+	UserId         int     `json:"user_id"`
+	Name           string  `json:"name"`
+	Status         string  `json:"status"`
+	MediaType      string  `json:"media_type"`
+	ImgURL         *string `json:"img_url"`
+	Rating         *int    `json:"rating"`
+	Notes          *string `json:"notes"`
+	Description    *string `json:"description"`
+	Genre          *string `json:"genre"`
+	StartDate      *t.Time `json:"start_date"`
+	CompletionDate *t.Time `json:"completion_date"`
 }
 
 type MediaRepository interface {

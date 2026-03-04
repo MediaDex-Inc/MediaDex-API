@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"mediadex/database"
+	"mediadex/database/dbmodel"
 	"os"
 
 	"github.com/joho/godotenv"
