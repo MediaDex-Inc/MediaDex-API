@@ -24,7 +24,7 @@ func New(config *config.Config) *MediaFieldConfig {
 // @Tags         MediaField
 // @Accept       json
 // @Produce      json
-// @Param        mediaField  body      MediaRequest  true  "MediaField creation payload"
+// @Param        mediaField  body      MediaFieldRequest  true  "MediaField creation payload"
 // @Security     BearerAuth
 // @Success      200    {object}  MediaFieldResponse
 // @Failure      400    {object}  map[string]string  "Invalid MediaField POST request payload !"
@@ -138,7 +138,7 @@ func (config *MediaFieldConfig) GetAllHandler(w http.ResponseWriter, r *http.Req
 // @Accept       json
 // @Produce      json
 // @Param        id     path     string        true  "MediaField ID"
-// @Param        mediaField  body     MediaRequest  true  "Updated mediaField payload"
+// @Param        mediaField  body     MediaFieldRequest  true  "Updated mediaField payload"
 // @Security     BearerAuth
 // @Success      200   {object}  MediaFieldResponse
 // @Failure      400   {object}  map[string]string
