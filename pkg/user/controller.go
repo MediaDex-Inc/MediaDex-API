@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 )
 
@@ -29,7 +29,7 @@ func New(config *config.Config) *UserConfig {
 // @Success      200    {object}  UserResponse
 // @Failure      400    {object}  map[string]string  "Invalid User POST request payload !"
 // @Failure      500    {object}  map[string]string  "Failed to create User !"
-// @Router       /user [post]
+// @Router       /users [post]
 func (config *UserConfig) PostHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Get the request.
@@ -75,7 +75,7 @@ func (config *UserConfig) PostHandler(w http.ResponseWriter, r *http.Request) {
 // @Success      200  {object}  UserResponse
 // @Failure      404  {object}  map[string]string  "User not found"
 // @Failure      500  {object}  map[string]string  "Failed to find specific User !"
-// @Router       /User/{id} [get]
+// @Router       /users/{id} [get]
 func (config *UserConfig) GetByIdHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Get the id in the URL
@@ -112,18 +112,29 @@ func (config *UserConfig) GetByIdHandler(w http.ResponseWriter, r *http.Request)
 // @Security     BearerAuth
 // @Success      200  {array}   UserResponse
 // @Failure      500  {object}  map[string]string
-// @Router       /user [get]
+// @Router       /users [get]
 func (config *UserConfig) GetAllHandler(w http.ResponseWriter, r *http.Request) {
 
-	user, err := config.UserRepository.FindAll()
+	users, err := config.UserRepository.FindAll()
 	if err != nil {
 		render.Status(r, http.StatusInternalServerError)
 		render.JSON(w, r, map[string]string{"Error": "failed to fetch User !" + err.Error()})
 		return
 	}
 
+	var result []UserResponse
+
+	for _, user := range users {
+		res := UserResponse{
+			ID:       user.ID,
+			Email:    user.Email,
+			Username: user.Username,
+		}
+		result = append(result, res)
+	}
+
 	render.Status(r, http.StatusOK)
-	render.JSON(w, r, user)
+	render.JSON(w, r, result)
 }
 
 // UpdateHandler godoc
@@ -139,7 +150,7 @@ func (config *UserConfig) GetAllHandler(w http.ResponseWriter, r *http.Request) 
 // @Failure      400   {object}  map[string]string
 // @Failure      404   {object}  map[string]string
 // @Failure      500   {object}  map[string]string
-// @Router       /user/{id} [patch]
+// @Router       /users/{id} [patch]
 func (config *UserConfig) UpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Get the id in the URL
@@ -166,15 +177,13 @@ func (config *UserConfig) UpdateHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// TODO Check if the value is null if not put in the request
-	// existing.Id = req.Id
-	if &req.Username != nil {
+	if req.Username != "" {
 		existing.Username = req.Username
 	}
-	if &req.Email != nil {
+	if req.Email != "" {
 		existing.Email = req.Email
 	}
-	if &req.Password != nil {
+	if req.Password != "" {
 		existing.Password = req.Password
 	}
 
@@ -204,7 +213,7 @@ func (config *UserConfig) UpdateHandler(w http.ResponseWriter, r *http.Request) 
 // @Success      200  {object}  map[string]string  "User deleted successfully"
 // @Failure      404  {object}  map[string]string  "User not found !"
 // @Failure      500  {object}  map[string]string  "Failed to delete User !"
-// @Router       /user/{id} [delete]
+// @Router       /users/{id} [delete]
 func (config *UserConfig) DeleteHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Get the id in the URL

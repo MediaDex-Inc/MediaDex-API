@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 )
 
@@ -30,7 +30,7 @@ func New(config *config.Config) *FieldConfig {
 // @Success      200    {object}  FieldResponse
 // @Failure      400    {object}  map[string]string  "Invalid Field POST request payload !"
 // @Failure      500    {object}  map[string]string  "Failed to create Field !"
-// @Router       /field [post]
+// @Router       /fields [post]
 func (config *FieldConfig) PostHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Get the request.
@@ -73,7 +73,7 @@ func (config *FieldConfig) PostHandler(w http.ResponseWriter, r *http.Request) {
 // @Success      200  {object}  FieldResponse
 // @Failure      404  {object}  map[string]string  "Field not found"
 // @Failure      500  {object}  map[string]string  "Failed to find specific Field !"
-// @Router       /field/{id} [get]
+// @Router       /fields/{id} [get]
 func (config *FieldConfig) GetByIdHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Get the id in the URL
@@ -109,7 +109,7 @@ func (config *FieldConfig) GetByIdHandler(w http.ResponseWriter, r *http.Request
 // @Security     BearerAuth
 // @Success      200  {array}   FieldResponse
 // @Failure      500  {object}  map[string]string
-// @Router       /field [get]
+// @Router       /fields [get]
 func (config *FieldConfig) GetAllHandler(w http.ResponseWriter, r *http.Request) {
 	fields, err := config.FieldRepository.FindAll()
 	if err != nil {
@@ -191,7 +191,7 @@ func (config *FieldConfig) GetMediaByFieldHandler(w http.ResponseWriter, r *http
 // @Failure      400   {object}  map[string]string
 // @Failure      404   {object}  map[string]string
 // @Failure      500   {object}  map[string]string
-// @Router       /field/{id} [patch]
+// @Router       /fields/{id} [patch]
 func (config *FieldConfig) UpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Get the id in the URL
@@ -218,9 +218,12 @@ func (config *FieldConfig) UpdateHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	// TODO Check if the value is null if not put in the request
-	existing.UserId = req.UserId
-	existing.Name = req.Name
+	if req.UserId > 0 {
+		existing.UserId = req.UserId
+	}
+	if req.Name == "" {
+		existing.Name = req.Name
+	}
 
 	updatedField, err := config.FieldRepository.Update(existing)
 	if err != nil {
@@ -248,7 +251,7 @@ func (config *FieldConfig) UpdateHandler(w http.ResponseWriter, r *http.Request)
 // @Success      200  {object}  map[string]string  "Field deleted successfully"
 // @Failure      404  {object}  map[string]string  "Field not found !"
 // @Failure      500  {object}  map[string]string  "Failed to delete Field !"
-// @Router       /field/{id} [delete]
+// @Router       /fields/{id} [delete]
 func (config *FieldConfig) DeleteHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Get the id in the URL

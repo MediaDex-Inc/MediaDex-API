@@ -32,7 +32,7 @@ func (a *MediaRequest) Bind(r *http.Request) error {
 	if a.Name == "" {
 		return errors.New("No valid name has been submited !")
 	}
-	if slices.Contains(status, a.Status) {
+	if !(slices.Contains(status, a.Status)) {
 		return errors.New("No valid status has been submited !")
 	}
 	if slices.Contains(types, a.MediaType) {

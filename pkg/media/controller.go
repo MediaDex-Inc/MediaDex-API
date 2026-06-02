@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 )
 
@@ -283,18 +283,27 @@ func (config *MediaConfig) UpdateHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	// TODO Check if the value is null if not put in the request
-	existing.UserId = req.UserId
-	existing.Name = req.Name
-	existing.Status = req.Status
-	existing.MediaType = req.MediaType
-	existing.ImgURL = req.ImgURL
-	existing.Rating = req.Rating
-	existing.Notes = req.Notes
-	existing.Description = req.Description
-	existing.Genre = req.Genre
-	existing.StartDate = req.StartDate
-	existing.CompletionDate = req.CompletionDate
+	if req.UserId > 0 {
+		existing.UserId = req.UserId
+	}
+	if req.Name != "" {
+		existing.Name = req.Name
+	}
+	if req.Status != "" {
+		existing.Status = req.Status
+	}
+	if req.MediaType != "" {
+		existing.MediaType = req.MediaType
+	}
+	if *req.ImgURL != "" {
+		existing.ImgURL = req.ImgURL
+	}
+	if *req.Rating >= 0 {
+		existing.Rating = req.Rating
+	}
+	if *req.Notes != "" {
+		existing.Notes = req.Notes
+	}
 
 	updatedMedia, err := config.MediaRepository.Update(existing)
 	if err != nil {
