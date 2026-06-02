@@ -4,12 +4,18 @@ import "gorm.io/gorm"
 
 type Tag struct {
 	gorm.Model
+	UserId uint   `json:"user_id"`
+	Name   string `json:"name"`
+	Color  string `json:"color"`
+
+	Media []*Media `gorm:"many2many:media_tags;constraint:OnDelete:CASCADE" json:"media"`
 }
 
 type TagRepository interface {
 	Create(tag *Tag) (*Tag, error)
 	FindAll() ([]*Tag, error)
 	FindById(id uint) (*Tag, error)
+	FindMediaByTag(id uint) ([]Media, error)
 	Update(tag *Tag) (*Tag, error)
 	Delete(id uint) error
 }
@@ -41,7 +47,7 @@ func (r *tagRepository) FindAll() ([]*Tag, error) {
 	return tags, nil
 }
 
-// Find a tag by is id.
+// Find a tag by his id.
 func (r *tagRepository) FindById(id uint) (*Tag, error) {
 	var tag Tag
 	if err := r.db.First(&tag, id).Error; err != nil {
@@ -49,6 +55,20 @@ func (r *tagRepository) FindById(id uint) (*Tag, error) {
 	}
 
 	return &tag, nil
+}
+
+// Find media with tag.
+func (r *tagRepository) FindMediaByTag(id uint) ([]Media, error) {
+	var tag Tag
+	if err := r.db.Preload("Media").First(&tag, id).Error; err != nil {
+		return nil, err
+	}
+	media := make([]Media, len(tag.Media))
+	for i, u := range tag.Media {
+		media[i] = *u
+	}
+
+	return media, nil
 }
 
 // Update the given tag.

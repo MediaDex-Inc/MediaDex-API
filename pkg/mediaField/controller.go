@@ -123,7 +123,7 @@ func (config *MediaFieldConfig) GetAllHandler(w http.ResponseWriter, r *http.Req
 	mediaField, err := config.MediaFieldRepository.FindAll()
 	if err != nil {
 		render.Status(r, http.StatusInternalServerError)
-		render.JSON(w, r, map[string]string{"Error": "failed to fetcha all MediaField !" + err.Error()})
+		render.JSON(w, r, map[string]string{"Error": "failed to fetch all MediaField !" + err.Error()})
 		return
 	}
 

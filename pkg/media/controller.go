@@ -3,6 +3,8 @@ package media
 import (
 	"mediadex/config"
 	"mediadex/database/dbmodel"
+	"mediadex/pkg/field"
+	"mediadex/pkg/tag"
 	"net/http"
 	"strconv"
 
@@ -42,13 +44,15 @@ func (config *MediaConfig) PostHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Convert the requested data into dbmodel.Media type for the "Create" function.
 	media := &dbmodel.Media{
-		UserId:    req.UserId,
-		Name:      req.Name,
-		Status:    req.Status,
-		MediaType: req.MediaType,
-		ImgURL:    req.ImgURL,
-		Rating:    req.Rating,
-		Notes:     req.Notes}
+		UserId:      req.UserId,
+		Name:        req.Name,
+		Status:      req.Status,
+		MediaType:   req.MediaType,
+		ImgURL:      req.ImgURL,
+		Rating:      req.Rating,
+		Notes:       req.Notes,
+		Description: req.Description,
+	}
 
 	// Request the DB to Create the Media.
 	savedMedia, err := config.MediaRepository.Create(media)
@@ -60,13 +64,16 @@ func (config *MediaConfig) PostHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Set up to a dedicated type for the response.
 	res := &MediaResponse{
-		UserId:    savedMedia.UserId,
-		Name:      savedMedia.Name,
-		Status:    savedMedia.Status,
-		MediaType: savedMedia.MediaType,
-		ImgURL:    savedMedia.ImgURL,
-		Rating:    savedMedia.Rating,
-		Notes:     savedMedia.Notes}
+		ID:          savedMedia.ID,
+		UserId:      savedMedia.UserId,
+		Name:        savedMedia.Name,
+		Status:      savedMedia.Status,
+		MediaType:   savedMedia.MediaType,
+		ImgURL:      savedMedia.ImgURL,
+		Rating:      savedMedia.Rating,
+		Notes:       savedMedia.Notes,
+		Description: savedMedia.Description,
+	}
 
 	render.Status(r, http.StatusOK)
 	render.JSON(w, r, res)
@@ -103,13 +110,16 @@ func (config *MediaConfig) GetByIdHandler(w http.ResponseWriter, r *http.Request
 
 	// Set up to a dedicated type for the response
 	res := &MediaResponse{
-		UserId:    media.UserId,
-		Name:      media.Name,
-		Status:    media.Status,
-		MediaType: media.MediaType,
-		ImgURL:    media.ImgURL,
-		Rating:    media.Rating,
-		Notes:     media.Notes}
+		ID:          media.ID,
+		UserId:      media.UserId,
+		Name:        media.Name,
+		Status:      media.Status,
+		MediaType:   media.MediaType,
+		ImgURL:      media.ImgURL,
+		Rating:      media.Rating,
+		Notes:       media.Notes,
+		Description: media.Description,
+	}
 
 	render.Status(r, http.StatusOK)
 	render.JSON(w, r, res)
@@ -126,15 +136,111 @@ func (config *MediaConfig) GetByIdHandler(w http.ResponseWriter, r *http.Request
 // @Router       /media [get]
 func (config *MediaConfig) GetAllHandler(w http.ResponseWriter, r *http.Request) {
 
-	media, err := config.MediaRepository.FindAll()
+	medias, err := config.MediaRepository.FindAll()
 	if err != nil {
 		render.Status(r, http.StatusInternalServerError)
 		render.JSON(w, r, map[string]string{"Error": "failed to fetch Media !" + err.Error()})
 		return
 	}
 
+	res := make([]MediaResponse, len(medias))
+	for i, media := range medias {
+		res[i] = MediaResponse{
+			ID:             media.ID,
+			UserId:         media.UserId,
+			Name:           media.Name,
+			Status:         media.Status,
+			MediaType:      media.MediaType,
+			ImgURL:         media.ImgURL,
+			Rating:         media.Rating,
+			Notes:          media.Notes,
+			Description:    media.Description,
+			Genre:          media.Genre,
+			StartDate:      media.StartDate,
+			CompletionDate: media.CompletionDate,
+		}
+	}
+
 	render.Status(r, http.StatusOK)
-	render.JSON(w, r, media)
+	render.JSON(w, r, res)
+}
+
+// GetTagsByMediaHandler godoc
+// @Summary      Get tags by Media ID
+// @Description  Retrieves tags associated with a specific media
+// @Tags         Media
+// @Produce      json
+// @Param        id   path      string  true  "media ID"
+// @Security     BearerAuth
+// @Success      200  {array}   tag.TagResponse
+// @Failure      404  {object}  map[string]string  "Media not found"
+// @Failure      500  {object}  map[string]string  "Failed to fetch Tags for Media !"
+// @Router       /media/{id}/tags [get]
+func (config *MediaConfig) GetTagsByMediaHandler(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil {
+		render.Status(r, http.StatusNotFound)
+		render.JSON(w, r, map[string]string{"Error": "Failed to retrieve ID !"})
+		return
+	}
+
+	tags, err := config.MediaRepository.FindTagsByMedia(uint(id))
+	if err != nil {
+		render.Status(r, http.StatusInternalServerError)
+		render.JSON(w, r, map[string]string{"Error": "Failed to fetch Tags for Media !" + err.Error()})
+		return
+	}
+
+	res := make([]tag.TagResponse, len(tags))
+	for i, t := range tags {
+		res[i] = tag.TagResponse{
+			ID:     t.ID,
+			UserId: t.UserId,
+			Name:   t.Name,
+			Color:  t.Color,
+		}
+	}
+
+	render.Status(r, http.StatusOK)
+	render.JSON(w, r, res)
+}
+
+// GetFieldsByMediaHandler godoc
+// @Summary      Get fields by Media ID
+// @Description  Retrieves fields associated with a specific media
+// @Tags         Media
+// @Produce      json
+// @Param        id   path      string  true  "media ID"
+// @Security     BearerAuth
+// @Success      200  {array}   field.FieldResponse
+// @Failure      404  {object}  map[string]string  "Media not found"
+// @Failure      500  {object}  map[string]string  "Failed to fetch Fields for Media !"
+// @Router       /media/{id}/fields [get]
+func (config *MediaConfig) GetFieldsByMediaHandler(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil {
+		render.Status(r, http.StatusNotFound)
+		render.JSON(w, r, map[string]string{"Error": "Failed to retrieve ID !"})
+		return
+	}
+
+	fields, err := config.MediaRepository.FindFieldsByMedia(uint(id))
+	if err != nil {
+		render.Status(r, http.StatusInternalServerError)
+		render.JSON(w, r, map[string]string{"Error": "Failed to fetch Fields for Media !" + err.Error()})
+		return
+	}
+
+	res := make([]field.FieldResponse, len(fields))
+	for i, f := range fields {
+		res[i] = field.FieldResponse{
+			UserId: f.UserId,
+			Name:   f.Name,
+		}
+	}
+
+	render.Status(r, http.StatusOK)
+	render.JSON(w, r, res)
 }
 
 // UpdateHandler godoc
@@ -185,6 +291,10 @@ func (config *MediaConfig) UpdateHandler(w http.ResponseWriter, r *http.Request)
 	existing.ImgURL = req.ImgURL
 	existing.Rating = req.Rating
 	existing.Notes = req.Notes
+	existing.Description = req.Description
+	existing.Genre = req.Genre
+	existing.StartDate = req.StartDate
+	existing.CompletionDate = req.CompletionDate
 
 	updatedMedia, err := config.MediaRepository.Update(existing)
 	if err != nil {
@@ -194,13 +304,15 @@ func (config *MediaConfig) UpdateHandler(w http.ResponseWriter, r *http.Request)
 	}
 
 	res := MediaResponse{
-		UserId:    updatedMedia.UserId,
-		Name:      updatedMedia.Name,
-		Status:    updatedMedia.Status,
-		MediaType: updatedMedia.MediaType,
-		ImgURL:    updatedMedia.ImgURL,
-		Rating:    updatedMedia.Rating,
-		Notes:     updatedMedia.Notes,
+		ID:          updatedMedia.ID,
+		UserId:      updatedMedia.UserId,
+		Name:        updatedMedia.Name,
+		Status:      updatedMedia.Status,
+		MediaType:   updatedMedia.MediaType,
+		ImgURL:      updatedMedia.ImgURL,
+		Rating:      updatedMedia.Rating,
+		Notes:       updatedMedia.Notes,
+		Description: updatedMedia.Description,
 	}
 
 	render.Status(r, http.StatusOK)

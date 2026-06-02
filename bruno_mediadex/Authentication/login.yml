@@ -5,12 +5,16 @@ info:
 
 http:
   method: POST
-  url: http://localhost:8080/api/v1/auth/login
+  url: "{{basePath}}/auth/login/:id"
+  params:
+    - name: id
+      value: ""
+      type: path
   body:
     type: json
     data: |-
       {
-        "email": "jgaudintest",
+        "email": "jgaudin@gmail",
         "password": "jgaudin",
         "username": "jgaudin"
       }

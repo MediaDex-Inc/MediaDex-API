@@ -3,6 +3,7 @@ package field
 import (
 	"mediadex/config"
 	"mediadex/database/dbmodel"
+	"mediadex/pkg/media"
 	"net/http"
 	"strconv"
 
@@ -110,16 +111,71 @@ func (config *FieldConfig) GetByIdHandler(w http.ResponseWriter, r *http.Request
 // @Failure      500  {object}  map[string]string
 // @Router       /field [get]
 func (config *FieldConfig) GetAllHandler(w http.ResponseWriter, r *http.Request) {
-
-	field, err := config.FieldRepository.FindAll()
+	fields, err := config.FieldRepository.FindAll()
 	if err != nil {
 		render.Status(r, http.StatusInternalServerError)
 		render.JSON(w, r, map[string]string{"Error": "failed to fetch Field !" + err.Error()})
 		return
 	}
 
+	res := make([]FieldResponse, len(fields))
+	for i, field := range fields {
+		res[i] = FieldResponse{
+			UserId: field.UserId,
+			Name:   field.Name,
+		}
+	}
+
 	render.Status(r, http.StatusOK)
-	render.JSON(w, r, field)
+	render.JSON(w, r, res)
+}
+
+// GetMediaByFieldHandler godoc
+// @Summary      Get media by field
+// @Description  Retrieves all media associated with a specific field
+// @Tags         Field
+// @Produce      json
+// @Param        id   path      string  true  "field ID"
+// @Security     BearerAuth
+// @Success      200  {array}   MediaResponse
+// @Failure      404  {object}  map[string]string  "Field not found"
+// @Failure      500  {object}  map[string]string  "Failed to fetch Media for Field !"
+// @Router       /field/{id}/media [get]
+func (config *FieldConfig) GetMediaByFieldHandler(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil {
+		render.Status(r, http.StatusNotFound)
+		render.JSON(w, r, map[string]string{"Error": "Failed to retrieve ID !"})
+		return
+	}
+
+	mediaItems, err := config.FieldRepository.FindMediaByField(uint(id))
+	if err != nil {
+		render.Status(r, http.StatusInternalServerError)
+		render.JSON(w, r, map[string]string{"Error": "Failed to fetch Media for Field !" + err.Error()})
+		return
+	}
+
+	res := make([]media.MediaResponse, len(mediaItems))
+	for i, media := range mediaItems {
+		res[i] = media.MediaResponse{
+			ID:             media.ID,
+			UserId:         media.UserId,
+			Name:           media.Name,
+			Status:         media.Status,
+			MediaType:      media.MediaType,
+			ImgURL:         media.ImgURL,
+			Rating:         media.Rating,
+			Notes:          media.Notes,
+			Description:    media.Description,
+			Genre:          media.Genre,
+			StartDate:      media.StartDate,
+			CompletionDate: media.CompletionDate,
+		}
+	}
+
+	render.Status(r, http.StatusOK)
+	render.JSON(w, r, res)
 }
 
 // UpdateHandler godoc

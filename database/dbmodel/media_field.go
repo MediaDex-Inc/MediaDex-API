@@ -3,12 +3,9 @@ package dbmodel
 import "gorm.io/gorm"
 
 type MediaField struct {
-	FieldID uint   `gorm:"primaryKey;column:fieldId"`
-	MediaID uint   `gorm:"primaryKey;column:mediaId"`
-	Value   string `gorm:"column:value"`
-
-	Field Field `gorm:"foreignKey:FieldID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	Media Media `gorm:"foreignKey:MediaID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	FieldID uint   `gorm:"not null;primaryKey;constraint:OnDelete:CASCADE"`
+	MediaID uint   `gorm:"not null;primaryKey;constraint:OnDelete:CASCADE"`
+	Value   string `gorm:"not null;column:value"`
 }
 
 type MediaFieldRepository interface {
@@ -46,7 +43,7 @@ func (r *mediaFieldRepository) FindAll() ([]*MediaField, error) {
 	return fields, nil
 }
 
-// Find a mediaField by is fieldID and mediaID.
+// Find a mediaField by his fieldID and mediaID.
 func (r *mediaFieldRepository) FindById(fieldID uint, mediaID uint) (*MediaField, error) {
 	var mediaField MediaField
 	if err := r.db.First(&mediaField, fieldID, mediaID).Error; err != nil {
@@ -65,7 +62,7 @@ func (r *mediaFieldRepository) Update(mediaField *MediaField) (*MediaField, erro
 	return mediaField, nil
 }
 
-// Delete a mediaField by is id.
+// Delete a mediaField by his id.
 func (r *mediaFieldRepository) Delete(id uint) error {
 	if err := r.db.Delete(MediaField{}, id).Error; err != nil {
 		return err

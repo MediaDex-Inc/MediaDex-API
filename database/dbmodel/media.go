@@ -20,14 +20,17 @@ type Media struct {
 	StartDate      *t.Time `json:"start_date"`
 	CompletionDate *t.Time `json:"completion_date"`
 
-	User User `gorm:"foreignKey:UserId;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	// MediaFields []MediaField `gorm:"foreignKey:MediaID"`
+	User   User     `gorm:"foreignKey:UserId;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	Tags   []*Tag   `gorm:"many2many:media_tag;constraint:OnDelete:CASCADE" json:"tags"`
+	Fields []*Field `gorm:"many2many:media_field;constraint:OnDelete:CASCADE" json:"fields"`
 }
 
 type MediaRepository interface {
 	Create(media *Media) (*Media, error)
 	FindAll() ([]*Media, error)
 	FindById(id uint) (*Media, error)
+	FindTagsByMedia(id uint) ([]Tag, error)
+	FindFieldsByMedia(id uint) ([]Field, error)
 	Update(media *Media) (*Media, error)
 	Delete(id uint) error
 }
@@ -59,7 +62,7 @@ func (r *mediaRepository) FindAll() ([]*Media, error) {
 	return medias, nil
 }
 
-// Find a media by is id.
+// Find a media by his id.
 func (r *mediaRepository) FindById(id uint) (*Media, error) {
 	var media Media
 	if err := r.db.First(&media, id).Error; err != nil {
@@ -67,6 +70,34 @@ func (r *mediaRepository) FindById(id uint) (*Media, error) {
 	}
 
 	return &media, nil
+}
+
+// Find tags for a media.
+func (r *mediaRepository) FindTagsByMedia(id uint) ([]Tag, error) {
+	var media Media
+	if err := r.db.Preload("Tags").First(&media, id).Error; err != nil {
+		return nil, err
+	}
+	tags := make([]Tag, len(media.Tags))
+	for i, u := range media.Tags {
+		tags[i] = *u
+	}
+
+	return tags, nil
+}
+
+// Find fields for a media.
+func (r *mediaRepository) FindFieldsByMedia(id uint) ([]Field, error) {
+	var media Media
+	if err := r.db.Preload("Fields").First(&media, id).Error; err != nil {
+		return nil, err
+	}
+	fields := make([]Field, len(media.Fields))
+	for i, u := range media.Fields {
+		fields[i] = *u
+	}
+
+	return fields, nil
 }
 
 // Update the given media.

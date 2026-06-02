@@ -41,7 +41,7 @@ func (r *collectionRepository) FindAll() ([]*Collection, error) {
 	return collections, nil
 }
 
-// Find a collection by is id.
+// Find a collection by his id.
 func (r *collectionRepository) FindById(id uint) (*Collection, error) {
 	var collection Collection
 	if err := r.db.First(&collection, id).Error; err != nil {
@@ -60,7 +60,7 @@ func (r *collectionRepository) Update(collection *Collection) (*Collection, erro
 	return collection, nil
 }
 
-// Delete a collection by is id.
+// Delete a collection by his id.
 func (r *collectionRepository) Delete(id uint) error {
 	if err := r.db.Delete(Collection{}, id).Error; err != nil {
 		return err

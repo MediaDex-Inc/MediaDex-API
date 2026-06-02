@@ -19,6 +19,8 @@ func Routes(config *config.Config) chi.Router {
 	router.Get("/", mediaConfig.GetAllHandler)
 	router.Patch("/{id}", mediaConfig.UpdateHandler)
 	router.Delete("/{id}", mediaConfig.DeleteHandler)
+	router.Get("/{id}/tags", mediaConfig.GetTagsByMediaHandler)
+	router.Get("/{id}/fields", mediaConfig.GetFieldsByMediaHandler)
 
 	return router
 }
