@@ -10,7 +10,7 @@
     "paths": {
         "/auth/login": {
             "post": {
-                "description": "Authenticate user and return JWT token",
+                "description": "Authenticate a user and return JWT tokens",
                 "consumes": [
                     "application/json"
                 ],
@@ -18,7 +18,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "authentication"
+                    "Authentication"
                 ],
                 "summary": "User login",
                 "parameters": [
@@ -28,7 +28,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.UserRequest"
+                            "$ref": "#/definitions/model.LoginRequest"
                         }
                     }
                 ],
@@ -41,6 +41,24 @@
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -61,7 +79,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "authentication"
+                    "Authentication"
                 ],
                 "summary": "Refresh token",
                 "parameters": [
@@ -90,6 +108,33 @@
                                 "type": "string"
                             }
                         }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
                     }
                 }
             }
@@ -104,7 +149,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "authentication"
+                    "Authentication"
                 ],
                 "summary": "User register",
                 "parameters": [
@@ -127,6 +172,24 @@
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -364,7 +427,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.CollectionRequest"
+                            "$ref": "#/definitions/model.CollectionUpdateRequest"
                         }
                     }
                 ],
@@ -395,61 +458,6 @@
                     },
                     "500": {
                         "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/field/{id}/media": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Retrieves all media associated with a specific field",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Field"
-                ],
-                "summary": "Get media by field",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "field ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/model.MediaResponse"
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Field not found",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Failed to fetch Media for Field !",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -687,7 +695,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.FieldRequest"
+                            "$ref": "#/definitions/model.FieldUpdateRequest"
                         }
                     }
                 ],
@@ -718,6 +726,61 @@
                     },
                     "500": {
                         "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/fields/{id}/media": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieves all media associated with a specific field",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Field"
+                ],
+                "summary": "Get media by field",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "field ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.MediaResponse"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Field not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to fetch Media for Field !",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -955,7 +1018,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.MediaRequest"
+                            "$ref": "#/definitions/model.MediaUpdateRequest"
                         }
                     }
                 ],
@@ -1198,7 +1261,7 @@
                 }
             }
         },
-        "/mediaFields/{id}": {
+        "/mediaFields/{fieldID}/{mediaID}": {
             "get": {
                 "security": [
                     {
@@ -1216,8 +1279,15 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "mediaField ID",
-                        "name": "id",
+                        "description": "Field ID",
+                        "name": "fieldID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Media ID",
+                        "name": "mediaID",
                         "in": "path",
                         "required": true
                     }
@@ -1266,8 +1336,15 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "MediaField ID",
-                        "name": "id",
+                        "description": "Field ID",
+                        "name": "fieldID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Media ID",
+                        "name": "mediaID",
                         "in": "path",
                         "required": true
                     }
@@ -1322,8 +1399,15 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "MediaField ID",
-                        "name": "id",
+                        "description": "Field ID",
+                        "name": "fieldID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Media ID",
+                        "name": "mediaID",
                         "in": "path",
                         "required": true
                     },
@@ -1333,7 +1417,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.MediaFieldRequest"
+                            "$ref": "#/definitions/model.MediaFieldUpdateRequest"
                         }
                     }
                 ],
@@ -1374,7 +1458,7 @@
                 }
             }
         },
-        "/tag": {
+        "/tags": {
             "get": {
                 "security": [
                     {
@@ -1466,7 +1550,7 @@
                 }
             }
         },
-        "/tag/{id}": {
+        "/tags/{id}": {
             "get": {
                 "security": [
                     {
@@ -1601,7 +1685,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.TagRequest"
+                            "$ref": "#/definitions/model.TagUpdateRequest"
                         }
                     }
                 ],
@@ -1642,7 +1726,7 @@
                 }
             }
         },
-        "/tag/{id}/media": {
+        "/tags/{id}/media": {
             "get": {
                 "security": [
                     {
@@ -1924,7 +2008,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.UserRequest"
+                            "$ref": "#/definitions/model.UserUpdateRequest"
                         }
                     }
                 ],
@@ -1971,8 +2055,7 @@
             "type": "object",
             "properties": {
                 "filters": {
-                    "type": "object",
-                    "additionalProperties": {}
+                    "type": "string"
                 },
                 "name": {
                     "type": "string"
@@ -1986,8 +2069,21 @@
             "type": "object",
             "properties": {
                 "filters": {
-                    "type": "object",
-                    "additionalProperties": {}
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.CollectionUpdateRequest": {
+            "type": "object",
+            "properties": {
+                "filters": {
+                    "type": "string"
                 },
                 "name": {
                     "type": "string"
@@ -2019,6 +2115,31 @@
                 }
             }
         },
+        "model.FieldUpdateRequest": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.LoginRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "model.MediaFieldRequest": {
             "type": "object",
             "properties": {
@@ -2042,6 +2163,14 @@
                 "media_id": {
                     "type": "integer"
                 },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.MediaFieldUpdateRequest": {
+            "type": "object",
+            "properties": {
                 "value": {
                     "type": "string"
                 }
@@ -2126,6 +2255,44 @@
                 }
             }
         },
+        "model.MediaUpdateRequest": {
+            "type": "object",
+            "properties": {
+                "completion_date": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "genre": {
+                    "type": "string"
+                },
+                "img_url": {
+                    "type": "string"
+                },
+                "media_type": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "rating": {
+                    "type": "integer"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "model.TagRequest": {
             "type": "object",
             "properties": {
@@ -2151,6 +2318,20 @@
                 },
                 "tag_id": {
                     "type": "integer"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.TagUpdateRequest": {
+            "type": "object",
+            "properties": {
+                "color": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
                 },
                 "user_id": {
                     "type": "integer"
@@ -2201,6 +2382,20 @@
                 },
                 "user_id": {
                     "type": "integer"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.UserUpdateRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
                 },
                 "username": {
                     "type": "string"

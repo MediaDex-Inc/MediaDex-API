@@ -11,6 +11,12 @@ type TagRequest struct {
 	Color  string `json:"color"`
 }
 
+type TagUpdateRequest struct {
+	UserId *uint   `json:"user_id"`
+	Name   *string `json:"name"`
+	Color  *string `json:"color"`
+}
+
 func (tag *TagRequest) Bind(r *http.Request) error {
 	if tag.UserId == 0 {
 		return errors.New("user_id must not be null")

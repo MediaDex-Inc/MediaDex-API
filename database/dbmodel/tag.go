@@ -8,7 +8,7 @@ type Tag struct {
 	Name   string `json:"name"`
 	Color  string `json:"color"`
 
-	Media []*Media `gorm:"many2many:media_tags;constraint:OnDelete:CASCADE" json:"media"`
+	Media []*Media `gorm:"many2many:media_tag;constraint:OnDelete:CASCADE" json:"media"`
 }
 
 type TagRepository interface {

@@ -11,6 +11,10 @@ type MediaFieldRequest struct {
 	Value   string `json:"value"`
 }
 
+type MediaFieldUpdateRequest struct {
+	Value *string `json:"value"`
+}
+
 func (mediaField *MediaFieldRequest) Bind(r *http.Request) error {
 	if mediaField.FieldID == 0 {
 		return errors.New("field_id must not be null")

@@ -11,6 +11,12 @@ type UserRequest struct {
 	Password string `json:"password"`
 }
 
+type UserUpdateRequest struct {
+	Email    *string `json:"email"`
+	Username *string `json:"username"`
+	Password *string `json:"password"`
+}
+
 func (user *UserRequest) Bind(r *http.Request) error {
 	if user.Email == "" {
 		return errors.New("email must not be null")

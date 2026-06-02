@@ -6,9 +6,15 @@ import (
 )
 
 type CollectionRequest struct {
-	UserId  uint           `json:"user_id"`
-	Name    string         `json:"name"`
-	Filters map[string]any `json:"filters"`
+	UserId  uint   `json:"user_id"`
+	Name    string `json:"name"`
+	Filters string `json:"filters"`
+}
+
+type CollectionUpdateRequest struct {
+	UserId  *uint   `json:"user_id"`
+	Name    *string `json:"name"`
+	Filters *string `json:"filters"`
 }
 
 func (collection *CollectionRequest) Bind(r *http.Request) error {
@@ -18,7 +24,7 @@ func (collection *CollectionRequest) Bind(r *http.Request) error {
 	if collection.Name == "" {
 		return errors.New("name must not be null")
 	}
-	if collection.Filters == nil {
+	if collection.Filters == "" {
 		return errors.New("filters must not be null")
 	}
 
@@ -26,7 +32,7 @@ func (collection *CollectionRequest) Bind(r *http.Request) error {
 }
 
 type CollectionResponse struct {
-	UserId  uint           `json:"user_id"`
-	Name    string         `json:"name"`
-	Filters map[string]any `json:"filters"`
+	UserId  uint   `json:"user_id"`
+	Name    string `json:"name"`
+	Filters string `json:"filters"`
 }

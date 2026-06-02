@@ -10,6 +10,11 @@ type FieldRequest struct {
 	Name   string `json:"name"`
 }
 
+type FieldUpdateRequest struct {
+	UserId *uint   `json:"user_id"`
+	Name   *string `json:"name"`
+}
+
 func (field *FieldRequest) Bind(r *http.Request) error {
 	if field.UserId == 0 {
 		return errors.New("user_id must not be null")

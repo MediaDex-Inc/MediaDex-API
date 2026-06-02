@@ -17,7 +17,7 @@ const docTemplate = `{
     "paths": {
         "/auth/login": {
             "post": {
-                "description": "Authenticate user and return JWT token",
+                "description": "Authenticate a user and return JWT tokens",
                 "consumes": [
                     "application/json"
                 ],
@@ -25,7 +25,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "authentication"
+                    "Authentication"
                 ],
                 "summary": "User login",
                 "parameters": [
@@ -35,7 +35,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.UserRequest"
+                            "$ref": "#/definitions/model.LoginRequest"
                         }
                     }
                 ],
@@ -48,6 +48,24 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -68,7 +86,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "authentication"
+                    "Authentication"
                 ],
                 "summary": "Refresh token",
                 "parameters": [
@@ -97,6 +115,33 @@ const docTemplate = `{
                                 "type": "string"
                             }
                         }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
                     }
                 }
             }
@@ -111,7 +156,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "authentication"
+                    "Authentication"
                 ],
                 "summary": "User register",
                 "parameters": [
@@ -134,6 +179,24 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -371,7 +434,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.CollectionRequest"
+                            "$ref": "#/definitions/model.CollectionUpdateRequest"
                         }
                     }
                 ],
@@ -402,61 +465,6 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/field/{id}/media": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Retrieves all media associated with a specific field",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Field"
-                ],
-                "summary": "Get media by field",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "field ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/model.MediaResponse"
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Field not found",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Failed to fetch Media for Field !",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -694,7 +702,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.FieldRequest"
+                            "$ref": "#/definitions/model.FieldUpdateRequest"
                         }
                     }
                 ],
@@ -725,6 +733,61 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/fields/{id}/media": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieves all media associated with a specific field",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Field"
+                ],
+                "summary": "Get media by field",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "field ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.MediaResponse"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Field not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to fetch Media for Field !",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -962,7 +1025,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.MediaRequest"
+                            "$ref": "#/definitions/model.MediaUpdateRequest"
                         }
                     }
                 ],
@@ -1205,7 +1268,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/mediaFields/{id}": {
+        "/mediaFields/{fieldID}/{mediaID}": {
             "get": {
                 "security": [
                     {
@@ -1223,8 +1286,15 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "mediaField ID",
-                        "name": "id",
+                        "description": "Field ID",
+                        "name": "fieldID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Media ID",
+                        "name": "mediaID",
                         "in": "path",
                         "required": true
                     }
@@ -1273,8 +1343,15 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "MediaField ID",
-                        "name": "id",
+                        "description": "Field ID",
+                        "name": "fieldID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Media ID",
+                        "name": "mediaID",
                         "in": "path",
                         "required": true
                     }
@@ -1329,8 +1406,15 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "MediaField ID",
-                        "name": "id",
+                        "description": "Field ID",
+                        "name": "fieldID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Media ID",
+                        "name": "mediaID",
                         "in": "path",
                         "required": true
                     },
@@ -1340,7 +1424,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.MediaFieldRequest"
+                            "$ref": "#/definitions/model.MediaFieldUpdateRequest"
                         }
                     }
                 ],
@@ -1381,7 +1465,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/tag": {
+        "/tags": {
             "get": {
                 "security": [
                     {
@@ -1473,7 +1557,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/tag/{id}": {
+        "/tags/{id}": {
             "get": {
                 "security": [
                     {
@@ -1608,7 +1692,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.TagRequest"
+                            "$ref": "#/definitions/model.TagUpdateRequest"
                         }
                     }
                 ],
@@ -1649,7 +1733,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/tag/{id}/media": {
+        "/tags/{id}/media": {
             "get": {
                 "security": [
                     {
@@ -1931,7 +2015,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.UserRequest"
+                            "$ref": "#/definitions/model.UserUpdateRequest"
                         }
                     }
                 ],
@@ -1978,8 +2062,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "filters": {
-                    "type": "object",
-                    "additionalProperties": {}
+                    "type": "string"
                 },
                 "name": {
                     "type": "string"
@@ -1993,8 +2076,21 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "filters": {
-                    "type": "object",
-                    "additionalProperties": {}
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.CollectionUpdateRequest": {
+            "type": "object",
+            "properties": {
+                "filters": {
+                    "type": "string"
                 },
                 "name": {
                     "type": "string"
@@ -2026,6 +2122,31 @@ const docTemplate = `{
                 }
             }
         },
+        "model.FieldUpdateRequest": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.LoginRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "model.MediaFieldRequest": {
             "type": "object",
             "properties": {
@@ -2049,6 +2170,14 @@ const docTemplate = `{
                 "media_id": {
                     "type": "integer"
                 },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.MediaFieldUpdateRequest": {
+            "type": "object",
+            "properties": {
                 "value": {
                     "type": "string"
                 }
@@ -2133,6 +2262,44 @@ const docTemplate = `{
                 }
             }
         },
+        "model.MediaUpdateRequest": {
+            "type": "object",
+            "properties": {
+                "completion_date": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "genre": {
+                    "type": "string"
+                },
+                "img_url": {
+                    "type": "string"
+                },
+                "media_type": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "rating": {
+                    "type": "integer"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "model.TagRequest": {
             "type": "object",
             "properties": {
@@ -2158,6 +2325,20 @@ const docTemplate = `{
                 },
                 "tag_id": {
                     "type": "integer"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.TagUpdateRequest": {
+            "type": "object",
+            "properties": {
+                "color": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
                 },
                 "user_id": {
                     "type": "integer"
@@ -2208,6 +2389,20 @@ const docTemplate = `{
                 },
                 "user_id": {
                     "type": "integer"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.UserUpdateRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
                 },
                 "username": {
                     "type": "string"

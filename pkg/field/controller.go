@@ -1,6 +1,7 @@
 package field
 
 import (
+	"encoding/json"
 	"mediadex/config"
 	"mediadex/database/dbmodel"
 	"mediadex/pkg/model"
@@ -37,7 +38,7 @@ func (config *FieldConfig) PostHandler(w http.ResponseWriter, r *http.Request) {
 	req := &model.FieldRequest{}
 	if err := render.Bind(r, req); err != nil {
 		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, map[string]string{"Error": "Invalid Field POST request payload !" + err.Error()})
+		render.JSON(w, r, map[string]string{"error": "invalid field payload: " + err.Error()})
 		return
 	}
 
@@ -50,7 +51,7 @@ func (config *FieldConfig) PostHandler(w http.ResponseWriter, r *http.Request) {
 	savedField, err := config.FieldRepository.Create(field)
 	if err != nil {
 		render.Status(r, http.StatusInternalServerError)
-		render.JSON(w, r, map[string]string{"Error": "Failed to create Field !" + err.Error()})
+		render.JSON(w, r, map[string]string{"error": "failed to create field: " + err.Error()})
 		return
 	}
 
@@ -79,8 +80,8 @@ func (config *FieldConfig) GetByIdHandler(w http.ResponseWriter, r *http.Request
 	// Get the id in the URL
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
-		render.Status(r, http.StatusNotFound)
-		render.JSON(w, r, map[string]string{"Error": "Failed to retrieve ID !"})
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, map[string]string{"error": "invalid id"})
 		return
 	}
 
@@ -88,7 +89,7 @@ func (config *FieldConfig) GetByIdHandler(w http.ResponseWriter, r *http.Request
 	field, err := config.FieldRepository.FindById(uint(id))
 	if err != nil {
 		render.Status(r, http.StatusNotFound)
-		render.JSON(w, r, map[string]string{"Error": "Failed to Find specific Field !" + err.Error()})
+		render.JSON(w, r, map[string]string{"error": "failed to find field: " + err.Error()})
 		return
 	}
 
@@ -114,7 +115,7 @@ func (config *FieldConfig) GetAllHandler(w http.ResponseWriter, r *http.Request)
 	fields, err := config.FieldRepository.FindAll()
 	if err != nil {
 		render.Status(r, http.StatusInternalServerError)
-		render.JSON(w, r, map[string]string{"Error": "failed to fetch Field !" + err.Error()})
+		render.JSON(w, r, map[string]string{"error": "failed to fetch fields: " + err.Error()})
 		return
 	}
 
@@ -140,19 +141,19 @@ func (config *FieldConfig) GetAllHandler(w http.ResponseWriter, r *http.Request)
 // @Success      200  {array}   model.MediaResponse
 // @Failure      404  {object}  map[string]string  "Field not found"
 // @Failure      500  {object}  map[string]string  "Failed to fetch Media for Field !"
-// @Router       /field/{id}/media [get]
+// @Router       /fields/{id}/media [get]
 func (config *FieldConfig) GetMediaByFieldHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
-		render.Status(r, http.StatusNotFound)
-		render.JSON(w, r, map[string]string{"Error": "Failed to retrieve ID !"})
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, map[string]string{"error": "invalid id"})
 		return
 	}
 
 	mediaItems, err := config.FieldRepository.FindMediaByField(uint(id))
 	if err != nil {
 		render.Status(r, http.StatusInternalServerError)
-		render.JSON(w, r, map[string]string{"Error": "Failed to fetch Media for Field !" + err.Error()})
+		render.JSON(w, r, map[string]string{"error": "failed to fetch media for field: " + err.Error()})
 		return
 	}
 
@@ -185,7 +186,7 @@ func (config *FieldConfig) GetMediaByFieldHandler(w http.ResponseWriter, r *http
 // @Accept       json
 // @Produce      json
 // @Param        id     path     string        true  "Field ID"
-// @Param        field  body     model.FieldRequest  true  "Updated field payload"
+// @Param        field  body     model.FieldUpdateRequest  true  "Updated field payload"
 // @Security     BearerAuth
 // @Success      200   {object}  model.FieldResponse
 // @Failure      400   {object}  map[string]string
@@ -197,16 +198,16 @@ func (config *FieldConfig) UpdateHandler(w http.ResponseWriter, r *http.Request)
 	// Get the id in the URL
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
-		render.Status(r, http.StatusNotFound)
-		render.JSON(w, r, map[string]string{"Error": "Failed to retrieve ID !"})
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, map[string]string{"error": "invalid id"})
 		return
 	}
 
 	// Get the request
-	req := &model.FieldRequest{}
-	if err := render.Bind(r, req); err != nil {
+	req := &model.FieldUpdateRequest{}
+	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
 		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, map[string]string{"error": "Invalid request payload !" + err.Error()})
+		render.JSON(w, r, map[string]string{"error": "invalid field payload: " + err.Error()})
 		return
 	}
 
@@ -214,21 +215,21 @@ func (config *FieldConfig) UpdateHandler(w http.ResponseWriter, r *http.Request)
 	existing, err := config.FieldRepository.FindById(uint(id))
 	if err != nil {
 		render.Status(r, http.StatusNotFound)
-		render.JSON(w, r, map[string]string{"Error": "Field not found !" + err.Error()})
+		render.JSON(w, r, map[string]string{"error": "field not found: " + err.Error()})
 		return
 	}
 
-	if req.UserId > 0 {
-		existing.UserId = req.UserId
+	if req.UserId != nil && *req.UserId > 0 {
+		existing.UserId = *req.UserId
 	}
-	if req.Name == "" {
-		existing.Name = req.Name
+	if req.Name != nil && *req.Name != "" {
+		existing.Name = *req.Name
 	}
 
 	updatedField, err := config.FieldRepository.Update(existing)
 	if err != nil {
 		render.Status(r, http.StatusInternalServerError)
-		render.JSON(w, r, map[string]string{"Error": "Failed to update Field !" + err.Error()})
+		render.JSON(w, r, map[string]string{"error": "failed to update field: " + err.Error()})
 		return
 	}
 
@@ -257,8 +258,8 @@ func (config *FieldConfig) DeleteHandler(w http.ResponseWriter, r *http.Request)
 	// Get the id in the URL
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
-		render.Status(r, http.StatusNotFound)
-		render.JSON(w, r, map[string]string{"Error": "Failed to retrieve ID !"})
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, map[string]string{"error": "invalid id"})
 		return
 	}
 
@@ -266,7 +267,7 @@ func (config *FieldConfig) DeleteHandler(w http.ResponseWriter, r *http.Request)
 	err = config.FieldRepository.Delete(uint(id))
 	if err != nil {
 		render.Status(r, http.StatusInternalServerError)
-		render.JSON(w, r, map[string]string{"Error": "Failed to Delete Field !" + err.Error()})
+		render.JSON(w, r, map[string]string{"error": "failed to delete field: " + err.Error()})
 		return
 	}
 

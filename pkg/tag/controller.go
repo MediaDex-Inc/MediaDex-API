@@ -1,6 +1,7 @@
 package tag
 
 import (
+	"encoding/json"
 	"mediadex/config"
 	"mediadex/database/dbmodel"
 	"mediadex/pkg/model"
@@ -30,12 +31,12 @@ func New(config *config.Config) *TagConfig {
 // @Success      200   {object}  model.TagResponse
 // @Failure      400   {object}  map[string]string  "Invalid Tag POST request payload !"
 // @Failure      500   {object}  map[string]string  "Failed to create Tag !"
-// @Router       /tag [post]
+// @Router       /tags [post]
 func (config *TagConfig) PostHandler(w http.ResponseWriter, r *http.Request) {
 	req := &model.TagRequest{}
 	if err := render.Bind(r, req); err != nil {
 		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, map[string]string{"Error": "Invalid Tag POST request payload !" + err.Error()})
+		render.JSON(w, r, map[string]string{"error": "invalid tag payload: " + err.Error()})
 		return
 	}
 
@@ -48,7 +49,7 @@ func (config *TagConfig) PostHandler(w http.ResponseWriter, r *http.Request) {
 	savedTag, err := config.TagRepository.Create(tag)
 	if err != nil {
 		render.Status(r, http.StatusInternalServerError)
-		render.JSON(w, r, map[string]string{"Error": "Failed to create Tag !" + err.Error()})
+		render.JSON(w, r, map[string]string{"error": "failed to create tag: " + err.Error()})
 		return
 	}
 
@@ -73,19 +74,19 @@ func (config *TagConfig) PostHandler(w http.ResponseWriter, r *http.Request) {
 // @Success      200  {object}  model.TagResponse
 // @Failure      404  {object}  map[string]string  "Tag not found"
 // @Failure      500  {object}  map[string]string  "Failed to find specific Tag !"
-// @Router       /tag/{id} [get]
+// @Router       /tags/{id} [get]
 func (config *TagConfig) GetByIdHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
-		render.Status(r, http.StatusNotFound)
-		render.JSON(w, r, map[string]string{"Error": "Failed to retrieve ID !"})
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, map[string]string{"error": "invalid id"})
 		return
 	}
 
 	tag, err := config.TagRepository.FindById(uint(id))
 	if err != nil {
 		render.Status(r, http.StatusNotFound)
-		render.JSON(w, r, map[string]string{"Error": "Failed to Find specific Tag !" + err.Error()})
+		render.JSON(w, r, map[string]string{"error": "failed to find tag: " + err.Error()})
 		return
 	}
 
@@ -108,12 +109,12 @@ func (config *TagConfig) GetByIdHandler(w http.ResponseWriter, r *http.Request) 
 // @Security     BearerAuth
 // @Success      200  {array}   model.TagResponse
 // @Failure      500  {object}  map[string]string
-// @Router       /tag [get]
+// @Router       /tags [get]
 func (config *TagConfig) GetAllHandler(w http.ResponseWriter, r *http.Request) {
 	tags, err := config.TagRepository.FindAll()
 	if err != nil {
 		render.Status(r, http.StatusInternalServerError)
-		render.JSON(w, r, map[string]string{"Error": "failed to fetch Tag !" + err.Error()})
+		render.JSON(w, r, map[string]string{"error": "failed to fetch tags: " + err.Error()})
 		return
 	}
 
@@ -141,19 +142,19 @@ func (config *TagConfig) GetAllHandler(w http.ResponseWriter, r *http.Request) {
 // @Success      200  {array}   model.MediaResponse
 // @Failure      404  {object}  map[string]string  "Tag not found"
 // @Failure      500  {object}  map[string]string  "Failed to fetch Media for Tag !"
-// @Router       /tag/{id}/media [get]
+// @Router       /tags/{id}/media [get]
 func (config *TagConfig) GetMediaByTagHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
-		render.Status(r, http.StatusNotFound)
-		render.JSON(w, r, map[string]string{"Error": "Failed to retrieve ID !"})
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, map[string]string{"error": "invalid id"})
 		return
 	}
 
 	mediaItems, err := config.TagRepository.FindMediaByTag(uint(id))
 	if err != nil {
 		render.Status(r, http.StatusInternalServerError)
-		render.JSON(w, r, map[string]string{"Error": "Failed to fetch Media for Tag !" + err.Error()})
+		render.JSON(w, r, map[string]string{"error": "failed to fetch media for tag: " + err.Error()})
 		return
 	}
 
@@ -186,43 +187,49 @@ func (config *TagConfig) GetMediaByTagHandler(w http.ResponseWriter, r *http.Req
 // @Accept       json
 // @Produce      json
 // @Param        id     path     string      true  "Tag ID"
-// @Param        tag    body     model.TagRequest  true  "Updated tag payload"
+// @Param        tag    body     model.TagUpdateRequest  true  "Updated tag payload"
 // @Security     BearerAuth
 // @Success      200   {object}  model.TagResponse
 // @Failure      400   {object}  map[string]string
 // @Failure      404   {object}  map[string]string
 // @Failure      500   {object}  map[string]string
-// @Router       /tag/{id} [patch]
+// @Router       /tags/{id} [patch]
 func (config *TagConfig) UpdateHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
-		render.Status(r, http.StatusNotFound)
-		render.JSON(w, r, map[string]string{"Error": "Failed to retrieve ID !"})
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, map[string]string{"error": "invalid id"})
 		return
 	}
 
-	req := &model.TagRequest{}
-	if err := render.Bind(r, req); err != nil {
+	req := &model.TagUpdateRequest{}
+	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
 		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, map[string]string{"error": "Invalid request payload !" + err.Error()})
+		render.JSON(w, r, map[string]string{"error": "invalid tag payload: " + err.Error()})
 		return
 	}
 
 	existing, err := config.TagRepository.FindById(uint(id))
 	if err != nil {
 		render.Status(r, http.StatusNotFound)
-		render.JSON(w, r, map[string]string{"Error": "Tag not found !" + err.Error()})
+		render.JSON(w, r, map[string]string{"error": "tag not found: " + err.Error()})
 		return
 	}
 
-	existing.UserId = req.UserId
-	existing.Name = req.Name
-	existing.Color = req.Color
+	if req.UserId != nil && *req.UserId > 0 {
+		existing.UserId = *req.UserId
+	}
+	if req.Name != nil && *req.Name != "" {
+		existing.Name = *req.Name
+	}
+	if req.Color != nil && *req.Color != "" {
+		existing.Color = *req.Color
+	}
 
 	updatedTag, err := config.TagRepository.Update(existing)
 	if err != nil {
 		render.Status(r, http.StatusInternalServerError)
-		render.JSON(w, r, map[string]string{"Error": "Failed to update Tag !" + err.Error()})
+		render.JSON(w, r, map[string]string{"error": "failed to update tag: " + err.Error()})
 		return
 	}
 
@@ -247,19 +254,19 @@ func (config *TagConfig) UpdateHandler(w http.ResponseWriter, r *http.Request) {
 // @Success      200  {object}  map[string]string  "Tag deleted successfully"
 // @Failure      404  {object}  map[string]string  "Tag not found !"
 // @Failure      500  {object}  map[string]string  "Failed to delete Tag !"
-// @Router       /tag/{id} [delete]
+// @Router       /tags/{id} [delete]
 func (config *TagConfig) DeleteHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
-		render.Status(r, http.StatusNotFound)
-		render.JSON(w, r, map[string]string{"Error": "Failed to retrieve ID !"})
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, map[string]string{"error": "invalid id"})
 		return
 	}
 
 	err = config.TagRepository.Delete(uint(id))
 	if err != nil {
 		render.Status(r, http.StatusInternalServerError)
-		render.JSON(w, r, map[string]string{"Error": "Failed to Delete Tag !" + err.Error()})
+		render.JSON(w, r, map[string]string{"error": "failed to delete tag: " + err.Error()})
 		return
 	}
 

@@ -1,6 +1,7 @@
 package mediaField
 
 import (
+	"encoding/json"
 	"mediadex/config"
 	"mediadex/database/dbmodel"
 	"mediadex/pkg/model"
@@ -37,7 +38,7 @@ func (config *MediaFieldConfig) PostHandler(w http.ResponseWriter, r *http.Reque
 	req := &model.MediaFieldRequest{}
 	if err := render.Bind(r, req); err != nil {
 		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, map[string]string{"Error": "Invalid MediaField POST request payload !" + err.Error()})
+		render.JSON(w, r, map[string]string{"error": "invalid media field payload: " + err.Error()})
 		return
 	}
 
@@ -51,7 +52,7 @@ func (config *MediaFieldConfig) PostHandler(w http.ResponseWriter, r *http.Reque
 	savedMediaField, err := config.MediaFieldRepository.Create(mediaField)
 	if err != nil {
 		render.Status(r, http.StatusInternalServerError)
-		render.JSON(w, r, map[string]string{"Error": "Failed to create MediaField !" + err.Error()})
+		render.JSON(w, r, map[string]string{"error": "failed to create media field: " + err.Error()})
 		return
 	}
 
@@ -70,25 +71,26 @@ func (config *MediaFieldConfig) PostHandler(w http.ResponseWriter, r *http.Reque
 // @Description  Retrieves a specific mediaField from the database by its ID
 // @Tags         MediaField
 // @Produce      json
-// @Param        id   path      string  true  "mediaField ID"
+// @Param        fieldID   path      string  true  "Field ID"
+// @Param        mediaID   path      string  true  "Media ID"
 // @Security     BearerAuth
 // @Success      200  {object}  model.MediaFieldResponse
 // @Failure      404  {object}  map[string]string  "MediaField not found"
 // @Failure      500  {object}  map[string]string  "Failed to find specific MediaField !"
-// @Router       /mediaFields/{id} [get]
+// @Router       /mediaFields/{fieldID}/{mediaID} [get]
 func (config *MediaFieldConfig) GetByIdHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Get the id in the URL
 	fieldID, err := strconv.Atoi(chi.URLParam(r, "fieldID"))
 	if err != nil {
-		render.Status(r, http.StatusNotFound)
-		render.JSON(w, r, map[string]string{"Error": "Failed to retrieve fieldID !"})
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, map[string]string{"error": "invalid fieldID"})
 		return
 	}
 	mediaID, err := strconv.Atoi(chi.URLParam(r, "mediaID"))
 	if err != nil {
-		render.Status(r, http.StatusNotFound)
-		render.JSON(w, r, map[string]string{"Error": "Failed to retrieve mediaID !"})
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, map[string]string{"error": "invalid mediaID"})
 		return
 	}
 
@@ -96,7 +98,7 @@ func (config *MediaFieldConfig) GetByIdHandler(w http.ResponseWriter, r *http.Re
 	mediaField, err := config.MediaFieldRepository.FindById(uint(fieldID), uint(mediaID))
 	if err != nil {
 		render.Status(r, http.StatusNotFound)
-		render.JSON(w, r, map[string]string{"Error": "Failed to Find specific MediaField !" + err.Error()})
+		render.JSON(w, r, map[string]string{"error": "failed to find media field: " + err.Error()})
 		return
 	}
 
@@ -124,7 +126,7 @@ func (config *MediaFieldConfig) GetAllHandler(w http.ResponseWriter, r *http.Req
 	mediaFields, err := config.MediaFieldRepository.FindAll()
 	if err != nil {
 		render.Status(r, http.StatusInternalServerError)
-		render.JSON(w, r, map[string]string{"Error": "failed to fetch all MediaField !" + err.Error()})
+		render.JSON(w, r, map[string]string{"error": "failed to fetch media fields: " + err.Error()})
 		return
 	}
 
@@ -149,35 +151,36 @@ func (config *MediaFieldConfig) GetAllHandler(w http.ResponseWriter, r *http.Req
 // @Tags         MediaField
 // @Accept       json
 // @Produce      json
-// @Param        id     path     string        true  "MediaField ID"
-// @Param        mediaField  body     model.MediaFieldRequest  true  "Updated mediaField payload"
+// @Param        fieldID     path     string        true  "Field ID"
+// @Param        mediaID     path     string        true  "Media ID"
+// @Param        mediaField  body     model.MediaFieldUpdateRequest  true  "Updated mediaField payload"
 // @Security     BearerAuth
 // @Success      200   {object}  model.MediaFieldResponse
 // @Failure      400   {object}  map[string]string
 // @Failure      404   {object}  map[string]string
 // @Failure      500   {object}  map[string]string
-// @Router       /mediaFields/{id} [patch]
+// @Router       /mediaFields/{fieldID}/{mediaID} [patch]
 func (config *MediaFieldConfig) UpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Get the id in the URL
 	fieldID, err := strconv.Atoi(chi.URLParam(r, "fieldID"))
 	if err != nil {
-		render.Status(r, http.StatusNotFound)
-		render.JSON(w, r, map[string]string{"Error": "Failed to retrieve fieldID !"})
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, map[string]string{"error": "invalid fieldID"})
 		return
 	}
 	mediaID, err := strconv.Atoi(chi.URLParam(r, "mediaID"))
 	if err != nil {
-		render.Status(r, http.StatusNotFound)
-		render.JSON(w, r, map[string]string{"Error": "Failed to retrieve mediaID !"})
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, map[string]string{"error": "invalid mediaID"})
 		return
 	}
 
 	// Get the request
-	req := &model.MediaFieldRequest{}
-	if err := render.Bind(r, req); err != nil {
+	req := &model.MediaFieldUpdateRequest{}
+	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
 		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, map[string]string{"error": "Invalid request payload !" + err.Error()})
+		render.JSON(w, r, map[string]string{"error": "invalid media field payload: " + err.Error()})
 		return
 	}
 
@@ -185,24 +188,18 @@ func (config *MediaFieldConfig) UpdateHandler(w http.ResponseWriter, r *http.Req
 	existing, err := config.MediaFieldRepository.FindById(uint(fieldID), uint(mediaID))
 	if err != nil {
 		render.Status(r, http.StatusNotFound)
-		render.JSON(w, r, map[string]string{"Error": "MediaField not found !" + err.Error()})
+		render.JSON(w, r, map[string]string{"error": "media field not found: " + err.Error()})
 		return
 	}
 
-	if req.FieldID > 0 {
-		existing.FieldID = req.FieldID
-	}
-	if req.MediaID > 0 {
-		existing.MediaID = req.MediaID
-	}
-	if req.Value != "" {
-		existing.Value = req.Value
+	if req.Value != nil && *req.Value != "" {
+		existing.Value = *req.Value
 	}
 
 	updatedMediaField, err := config.MediaFieldRepository.Update(existing)
 	if err != nil {
 		render.Status(r, http.StatusInternalServerError)
-		render.JSON(w, r, map[string]string{"Error": "Failed to update MediaField !" + err.Error()})
+		render.JSON(w, r, map[string]string{"error": "failed to update media field: " + err.Error()})
 		return
 	}
 
@@ -221,27 +218,34 @@ func (config *MediaFieldConfig) UpdateHandler(w http.ResponseWriter, r *http.Req
 // @Description  Deletes a mediaField from the database by its ID
 // @Tags         MediaField
 // @Produce      json
-// @Param        id   path      string  true  "MediaField ID"
+// @Param        fieldID   path      string  true  "Field ID"
+// @Param        mediaID   path      string  true  "Media ID"
 // @Security     BearerAuth
 // @Success      200  {object}  map[string]string  "MediaField deleted successfully"
 // @Failure      404  {object}  map[string]string  "MediaField not found !"
 // @Failure      500  {object}  map[string]string  "Failed to delete MediaField !"
-// @Router       /mediaFields/{id} [delete]
+// @Router       /mediaFields/{fieldID}/{mediaID} [delete]
 func (config *MediaFieldConfig) DeleteHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Get the id in the URL
-	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	fieldID, err := strconv.Atoi(chi.URLParam(r, "fieldID"))
 	if err != nil {
-		render.Status(r, http.StatusNotFound)
-		render.JSON(w, r, map[string]string{"Error": "Failed to retrieve ID !"})
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, map[string]string{"error": "invalid fieldID"})
+		return
+	}
+	mediaID, err := strconv.Atoi(chi.URLParam(r, "mediaID"))
+	if err != nil {
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, map[string]string{"error": "invalid mediaID"})
 		return
 	}
 
 	// Request the DB to Delete the informations
-	err = config.MediaFieldRepository.Delete(uint(id))
+	err = config.MediaFieldRepository.Delete(uint(fieldID), uint(mediaID))
 	if err != nil {
 		render.Status(r, http.StatusInternalServerError)
-		render.JSON(w, r, map[string]string{"Error": "Failed to Delete MediaField !" + err.Error()})
+		render.JSON(w, r, map[string]string{"error": "failed to delete media field: " + err.Error()})
 		return
 	}
 

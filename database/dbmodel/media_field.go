@@ -13,7 +13,7 @@ type MediaFieldRepository interface {
 	FindAll() ([]*MediaField, error)
 	FindById(fieldID uint, mediaID uint) (*MediaField, error)
 	Update(mediaField *MediaField) (*MediaField, error)
-	Delete(id uint) error
+	Delete(fieldID uint, mediaID uint) error
 }
 
 type mediaFieldRepository struct {
@@ -46,7 +46,7 @@ func (r *mediaFieldRepository) FindAll() ([]*MediaField, error) {
 // Find a mediaField by his fieldID and mediaID.
 func (r *mediaFieldRepository) FindById(fieldID uint, mediaID uint) (*MediaField, error) {
 	var mediaField MediaField
-	if err := r.db.First(&mediaField, fieldID, mediaID).Error; err != nil {
+	if err := r.db.Where("field_id = ? AND media_id = ?", fieldID, mediaID).First(&mediaField).Error; err != nil {
 		return nil, err
 	}
 
@@ -62,9 +62,9 @@ func (r *mediaFieldRepository) Update(mediaField *MediaField) (*MediaField, erro
 	return mediaField, nil
 }
 
-// Delete a mediaField by his id.
-func (r *mediaFieldRepository) Delete(id uint) error {
-	if err := r.db.Delete(MediaField{}, id).Error; err != nil {
+// Delete a mediaField by his composite id.
+func (r *mediaFieldRepository) Delete(fieldID uint, mediaID uint) error {
+	if err := r.db.Where("field_id = ? AND media_id = ?", fieldID, mediaID).Delete(&MediaField{}).Error; err != nil {
 		return err
 	}
 

@@ -1,6 +1,7 @@
 package user
 
 import (
+	"encoding/json"
 	"mediadex/config"
 	"mediadex/database/dbmodel"
 	"mediadex/pkg/model"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type UserConfig struct {
@@ -37,7 +39,14 @@ func (config *UserConfig) PostHandler(w http.ResponseWriter, r *http.Request) {
 	req := &model.UserRequest{}
 	if err := render.Bind(r, req); err != nil {
 		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, map[string]string{"Error": "Invalid User POST request payload !" + err.Error()})
+		render.JSON(w, r, map[string]string{"error": "invalid user payload: " + err.Error()})
+		return
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	if err != nil {
+		render.Status(r, http.StatusInternalServerError)
+		render.JSON(w, r, map[string]string{"error": "failed to hash password"})
 		return
 	}
 
@@ -45,19 +54,20 @@ func (config *UserConfig) PostHandler(w http.ResponseWriter, r *http.Request) {
 	user := &dbmodel.User{
 		Username: req.Username,
 		Email:    req.Email,
-		Password: req.Password,
+		Password: string(hashedPassword),
 	}
 
 	// Request the DB to Create the User.
 	savedUser, err := config.UserRepository.Create(user)
 	if err != nil {
 		render.Status(r, http.StatusInternalServerError)
-		render.JSON(w, r, map[string]string{"Error": "Failed to create User !" + err.Error()})
+		render.JSON(w, r, map[string]string{"error": "failed to create user: " + err.Error()})
 		return
 	}
 
 	// Set up to a dedicated type for the response.
 	res := &model.UserResponse{
+		ID:       savedUser.ID,
 		Username: savedUser.Username,
 		Email:    savedUser.Email,
 	}
@@ -82,8 +92,8 @@ func (config *UserConfig) GetByIdHandler(w http.ResponseWriter, r *http.Request)
 	// Get the id in the URL
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
-		render.Status(r, http.StatusNotFound)
-		render.JSON(w, r, map[string]string{"Error": "Failed to retrieve ID !"})
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, map[string]string{"error": "invalid id"})
 		return
 	}
 
@@ -91,12 +101,13 @@ func (config *UserConfig) GetByIdHandler(w http.ResponseWriter, r *http.Request)
 	user, err := config.UserRepository.FindById(uint(id))
 	if err != nil {
 		render.Status(r, http.StatusNotFound)
-		render.JSON(w, r, map[string]string{"Error": "Failed to Find specific User !" + err.Error()})
+		render.JSON(w, r, map[string]string{"error": "failed to find user: " + err.Error()})
 		return
 	}
 
 	// Set up to a dedicated type for the response
 	res := &model.UserResponse{
+		ID:       user.ID,
 		Username: user.Username,
 		Email:    user.Email,
 	}
@@ -119,7 +130,7 @@ func (config *UserConfig) GetAllHandler(w http.ResponseWriter, r *http.Request) 
 	users, err := config.UserRepository.FindAll()
 	if err != nil {
 		render.Status(r, http.StatusInternalServerError)
-		render.JSON(w, r, map[string]string{"Error": "failed to fetch User !" + err.Error()})
+		render.JSON(w, r, map[string]string{"error": "failed to fetch users: " + err.Error()})
 		return
 	}
 
@@ -145,7 +156,7 @@ func (config *UserConfig) GetAllHandler(w http.ResponseWriter, r *http.Request) 
 // @Accept       json
 // @Produce      json
 // @Param        id     path     string        true  "User ID"
-// @Param        user  body     model.UserRequest  true  "Updated user payload"
+// @Param        user  body     model.UserUpdateRequest  true  "Updated user payload"
 // @Security     BearerAuth
 // @Success      200   {object}  model.UserResponse
 // @Failure      400   {object}  map[string]string
@@ -157,16 +168,16 @@ func (config *UserConfig) UpdateHandler(w http.ResponseWriter, r *http.Request) 
 	// Get the id in the URL
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
-		render.Status(r, http.StatusNotFound)
-		render.JSON(w, r, map[string]string{"Error": "Failed to retrieve ID !"})
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, map[string]string{"error": "invalid id"})
 		return
 	}
 
 	// Get the request
-	req := &model.UserRequest{}
-	if err := render.Bind(r, req); err != nil {
+	req := &model.UserUpdateRequest{}
+	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
 		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, map[string]string{"error": "Invalid request payload !" + err.Error()})
+		render.JSON(w, r, map[string]string{"error": "invalid user payload: " + err.Error()})
 		return
 	}
 
@@ -174,28 +185,35 @@ func (config *UserConfig) UpdateHandler(w http.ResponseWriter, r *http.Request) 
 	existing, err := config.UserRepository.FindById(uint(id))
 	if err != nil {
 		render.Status(r, http.StatusNotFound)
-		render.JSON(w, r, map[string]string{"Error": "User not found !" + err.Error()})
+		render.JSON(w, r, map[string]string{"error": "user not found: " + err.Error()})
 		return
 	}
 
-	if req.Username != "" {
-		existing.Username = req.Username
+	if req.Username != nil && *req.Username != "" {
+		existing.Username = *req.Username
 	}
-	if req.Email != "" {
-		existing.Email = req.Email
+	if req.Email != nil && *req.Email != "" {
+		existing.Email = *req.Email
 	}
-	if req.Password != "" {
-		existing.Password = req.Password
+	if req.Password != nil && *req.Password != "" {
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(*req.Password), bcrypt.DefaultCost)
+		if err != nil {
+			render.Status(r, http.StatusInternalServerError)
+			render.JSON(w, r, map[string]string{"error": "failed to hash password"})
+			return
+		}
+		existing.Password = string(hashedPassword)
 	}
 
 	updatedUser, err := config.UserRepository.Update(existing)
 	if err != nil {
 		render.Status(r, http.StatusInternalServerError)
-		render.JSON(w, r, map[string]string{"Error": "Failed to update User !" + err.Error()})
+		render.JSON(w, r, map[string]string{"error": "failed to update user: " + err.Error()})
 		return
 	}
 
 	res := model.UserResponse{
+		ID:       updatedUser.ID,
 		Email:    updatedUser.Email,
 		Username: updatedUser.Username,
 	}
@@ -220,8 +238,8 @@ func (config *UserConfig) DeleteHandler(w http.ResponseWriter, r *http.Request) 
 	// Get the id in the URL
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
-		render.Status(r, http.StatusNotFound)
-		render.JSON(w, r, map[string]string{"Error": "Failed to retrieve ID !"})
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, map[string]string{"error": "invalid id"})
 		return
 	}
 
@@ -229,7 +247,7 @@ func (config *UserConfig) DeleteHandler(w http.ResponseWriter, r *http.Request) 
 	err = config.UserRepository.Delete(uint(id))
 	if err != nil {
 		render.Status(r, http.StatusInternalServerError)
-		render.JSON(w, r, map[string]string{"Error": "Failed to Delete User !" + err.Error()})
+		render.JSON(w, r, map[string]string{"error": "failed to delete user: " + err.Error()})
 		return
 	}
 

@@ -38,40 +38,29 @@ func (config *CollectionConfig) PostHandler(w http.ResponseWriter, r *http.Reque
 	req := &model.CollectionRequest{}
 	if err := render.Bind(r, req); err != nil {
 		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, map[string]string{"Error": "Invalid Collection POST request payload !" + err.Error()})
+		render.JSON(w, r, map[string]string{"error": "invalid collection payload: " + err.Error()})
 		return
 	}
 
-	filters, err := json.Marshal(req.Filters)
-	if err != nil {
-		render.JSON(w, r, map[string]string{"Error": "failed to parse filters value" + err.Error()})
-	}
 	// Convert the requested data into dbmodel.Collection type for the "Create" function.
 	collection := &dbmodel.Collection{
 		UserId:  req.UserId,
 		Name:    req.Name,
-		Filters: filters,
+		Filters: req.Filters,
 	}
 
 	// Request the DB to Create the Collection.
 	savedCollection, err := config.CollectionRepository.Create(collection)
 	if err != nil {
 		render.Status(r, http.StatusInternalServerError)
-		render.JSON(w, r, map[string]string{"Error": "Failed to create Collection !" + err.Error()})
+		render.JSON(w, r, map[string]string{"error": "failed to create collection: " + err.Error()})
 		return
 	}
 
-	var newFilters map[string]any
-	errUnmarshal := json.Unmarshal(savedCollection.Filters, newFilters)
-	if errUnmarshal != nil {
-		render.JSON(w, r, map[string]string{"Error": "failed to parse new filters value" + errUnmarshal.Error()})
-	}
-
-	// Set up to a dedicated type for the response.
 	res := &model.CollectionResponse{
 		UserId:  savedCollection.UserId,
 		Name:    savedCollection.Name,
-		Filters: newFilters,
+		Filters: savedCollection.Filters,
 	}
 
 	render.Status(r, http.StatusOK)
@@ -94,8 +83,8 @@ func (config *CollectionConfig) GetByIdHandler(w http.ResponseWriter, r *http.Re
 	// Get the id in the URL
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
-		render.Status(r, http.StatusNotFound)
-		render.JSON(w, r, map[string]string{"Error": "Failed to retrieve ID !"})
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, map[string]string{"error": "invalid id"})
 		return
 	}
 
@@ -103,21 +92,14 @@ func (config *CollectionConfig) GetByIdHandler(w http.ResponseWriter, r *http.Re
 	collection, err := config.CollectionRepository.FindById(uint(id))
 	if err != nil {
 		render.Status(r, http.StatusNotFound)
-		render.JSON(w, r, map[string]string{"Error": "Failed to Find specific Collection ! " + err.Error()})
+		render.JSON(w, r, map[string]string{"error": "failed to find collection: " + err.Error()})
 		return
 	}
 
-	var newFilters map[string]any
-	errUnmarshal := json.Unmarshal(collection.Filters, newFilters)
-	if errUnmarshal != nil {
-		render.JSON(w, r, map[string]string{"Error": "failed to parse new filters value" + errUnmarshal.Error()})
-	}
-
-	// Set up to a dedicated type for the response
 	res := &model.CollectionResponse{
 		UserId:  collection.UserId,
 		Name:    collection.Name,
-		Filters: newFilters,
+		Filters: collection.Filters,
 	}
 
 	render.Status(r, http.StatusOK)
@@ -138,26 +120,18 @@ func (config *CollectionConfig) GetAllHandler(w http.ResponseWriter, r *http.Req
 	collections, err := config.CollectionRepository.FindAll()
 	if err != nil {
 		render.Status(r, http.StatusInternalServerError)
-		render.JSON(w, r, map[string]string{"Error": "failed to fetch Collection !" + err.Error()})
+		render.JSON(w, r, map[string]string{"error": "failed to fetch collections: " + err.Error()})
 		return
 	}
 
 	var result []model.CollectionResponse
 
 	for _, collection := range collections {
-
-		var newFilters map[string]any
-		errUnmarshal := json.Unmarshal(collection.Filters, newFilters)
-		if errUnmarshal != nil {
-			render.JSON(w, r, map[string]string{"Error": "failed to parse filters value " + errUnmarshal.Error()})
-		}
-
-		res := model.CollectionResponse{
+		result = append(result, model.CollectionResponse{
 			UserId:  collection.UserId,
 			Name:    collection.Name,
-			Filters: newFilters,
-		}
-		result = append(result, res)
+			Filters: collection.Filters,
+		})
 	}
 
 	render.Status(r, http.StatusOK)
@@ -171,7 +145,7 @@ func (config *CollectionConfig) GetAllHandler(w http.ResponseWriter, r *http.Req
 // @Accept       json
 // @Produce      json
 // @Param        id     path     string        true  "Collection ID"
-// @Param        collection  body     model.CollectionRequest  true  "Updated collection payload"
+// @Param        collection  body     model.CollectionUpdateRequest  true  "Updated collection payload"
 // @Security     BearerAuth
 // @Success      200   {object}  model.CollectionResponse
 // @Failure      400   {object}  map[string]string
@@ -183,16 +157,16 @@ func (config *CollectionConfig) UpdateHandler(w http.ResponseWriter, r *http.Req
 	// Get the id in the URL
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
-		render.Status(r, http.StatusNotFound)
-		render.JSON(w, r, map[string]string{"Error": "Failed to retrieve ID !"})
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, map[string]string{"error": "invalid id"})
 		return
 	}
 
 	// Get the request
-	req := &model.CollectionRequest{}
-	if err := render.Bind(r, req); err != nil {
+	req := &model.CollectionUpdateRequest{}
+	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
 		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, map[string]string{"error": "Invalid request payload !" + err.Error()})
+		render.JSON(w, r, map[string]string{"error": "invalid collection payload: " + err.Error()})
 		return
 	}
 
@@ -200,41 +174,31 @@ func (config *CollectionConfig) UpdateHandler(w http.ResponseWriter, r *http.Req
 	existing, err := config.CollectionRepository.FindById(uint(id))
 	if err != nil {
 		render.Status(r, http.StatusNotFound)
-		render.JSON(w, r, map[string]string{"Error": "Collection not found !" + err.Error()})
+		render.JSON(w, r, map[string]string{"error": "collection not found: " + err.Error()})
 		return
 	}
 
-	if req.UserId > 0 {
-		existing.UserId = req.UserId
+	if req.UserId != nil && *req.UserId > 0 {
+		existing.UserId = *req.UserId
 	}
-	if req.Name != "" {
-		existing.Name = req.Name
+	if req.Name != nil && *req.Name != "" {
+		existing.Name = *req.Name
 	}
-	if len(req.Filters) == 0 {
-		filters, err := json.Marshal(req.Filters)
-		if err != nil {
-			render.JSON(w, r, map[string]string{"Error": "failed to parse filters value" + err.Error()})
-		}
-		existing.Filters = filters
+	if req.Filters != nil {
+		existing.Filters = *req.Filters
 	}
 
 	updatedCollection, err := config.CollectionRepository.Update(existing)
 	if err != nil {
 		render.Status(r, http.StatusInternalServerError)
-		render.JSON(w, r, map[string]string{"Error": "Failed to update Collection !" + err.Error()})
+		render.JSON(w, r, map[string]string{"error": "failed to update collection: " + err.Error()})
 		return
 	}
 
-	var newFilters map[string]any
-	errUnmarshal := json.Unmarshal(updatedCollection.Filters, newFilters)
-	if errUnmarshal != nil {
-		render.JSON(w, r, map[string]string{"Error": "failed to parse new filters value" + errUnmarshal.Error()})
-	}
-
-	res := model.CollectionResponse{
+	res := &model.CollectionResponse{
 		UserId:  updatedCollection.UserId,
 		Name:    updatedCollection.Name,
-		Filters: newFilters,
+		Filters: updatedCollection.Filters,
 	}
 
 	render.Status(r, http.StatusOK)
@@ -257,8 +221,8 @@ func (config *CollectionConfig) DeleteHandler(w http.ResponseWriter, r *http.Req
 	// Get the id in the URL
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
-		render.Status(r, http.StatusNotFound)
-		render.JSON(w, r, map[string]string{"Error": "Failed to retrieve ID !"})
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, map[string]string{"error": "invalid id"})
 		return
 	}
 
@@ -266,7 +230,7 @@ func (config *CollectionConfig) DeleteHandler(w http.ResponseWriter, r *http.Req
 	err = config.CollectionRepository.Delete(uint(id))
 	if err != nil {
 		render.Status(r, http.StatusInternalServerError)
-		render.JSON(w, r, map[string]string{"Error": "Failed to Delete Collection !" + err.Error()})
+		render.JSON(w, r, map[string]string{"error": "failed to delete collection: " + err.Error()})
 		return
 	}
 

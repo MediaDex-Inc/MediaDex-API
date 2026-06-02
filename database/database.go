@@ -12,6 +12,7 @@ func Migrate(database *gorm.DB) error {
 		&dbmodel.Collection{},
 		&dbmodel.Field{},
 		&dbmodel.Media{},
+		&dbmodel.MediaField{},
 		&dbmodel.Tag{},
 		&dbmodel.User{},
 	)

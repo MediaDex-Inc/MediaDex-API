@@ -15,10 +15,10 @@ func Routes(config *config.Config) chi.Router {
 
 	// Routes
 	router.Post("/", mediaFieldConfig.PostHandler)
-	router.Get("/{id}", mediaFieldConfig.GetByIdHandler)
+	router.Get("/{fieldID}/{mediaID}", mediaFieldConfig.GetByIdHandler)
 	router.Get("/", mediaFieldConfig.GetAllHandler)
-	router.Patch("/{id}", mediaFieldConfig.UpdateHandler)
-	router.Delete("/{id}", mediaFieldConfig.DeleteHandler)
+	router.Patch("/{fieldID}/{mediaID}", mediaFieldConfig.UpdateHandler)
+	router.Delete("/{fieldID}/{mediaID}", mediaFieldConfig.DeleteHandler)
 
 	return router
 }
