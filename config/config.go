@@ -25,6 +25,7 @@ type Config struct {
 	CollectionRepository dbmodel.CollectionRepository
 	FieldRepository      dbmodel.FieldRepository
 	MediaRepository      dbmodel.MediaRepository
+	MediaFieldRepository dbmodel.MediaFieldRepository
 	TagRepository        dbmodel.TagRepository
 	UserRepository       dbmodel.UserRepository
 }
@@ -84,6 +85,7 @@ func New() (*Config, error) {
 	config.CollectionRepository = dbmodel.NewCollectionRepository(databaseSession)
 	config.FieldRepository = dbmodel.NewFieldRepository(databaseSession)
 	config.MediaRepository = dbmodel.NewMediaRepository(databaseSession)
+	config.MediaFieldRepository = dbmodel.NewMediaFieldRepository(databaseSession)
 	config.TagRepository = dbmodel.NewTagRepository(databaseSession)
 	config.UserRepository = dbmodel.NewUserRepository(databaseSession)
 
