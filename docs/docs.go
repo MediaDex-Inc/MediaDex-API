@@ -35,7 +35,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/user.UserRequest"
+                            "$ref": "#/definitions/model.UserRequest"
                         }
                     }
                 ],
@@ -43,7 +43,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/authentication.TokenResponse"
+                            "$ref": "#/definitions/model.TokenResponse"
                         }
                     },
                     "400": {
@@ -78,7 +78,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/authentication.TokenRequest"
+                            "$ref": "#/definitions/model.TokenRequest"
                         }
                     }
                 ],
@@ -86,7 +86,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/authentication.TokenResponse"
+                            "$ref": "#/definitions/model.TokenResponse"
                         }
                     },
                     "400": {
@@ -121,7 +121,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/user.UserRequest"
+                            "$ref": "#/definitions/model.UserRequest"
                         }
                     }
                 ],
@@ -129,7 +129,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/authentication.TokenResponse"
+                            "$ref": "#/definitions/model.TokenResponse"
                         }
                     },
                     "400": {
@@ -165,7 +165,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/collection.CollectionResponse"
+                                "$ref": "#/definitions/model.CollectionResponse"
                             }
                         }
                     },
@@ -204,7 +204,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/collection.CollectionRequest"
+                            "$ref": "#/definitions/model.CollectionRequest"
                         }
                     }
                 ],
@@ -212,7 +212,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/collection.CollectionResponse"
+                            "$ref": "#/definitions/model.CollectionResponse"
                         }
                     },
                     "400": {
@@ -264,7 +264,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/collection.CollectionResponse"
+                            "$ref": "#/definitions/model.CollectionResponse"
                         }
                     },
                     "404": {
@@ -371,7 +371,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/collection.CollectionRequest"
+                            "$ref": "#/definitions/model.CollectionRequest"
                         }
                     }
                 ],
@@ -379,7 +379,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/collection.CollectionResponse"
+                            "$ref": "#/definitions/model.CollectionResponse"
                         }
                     },
                     "400": {
@@ -412,6 +412,61 @@ const docTemplate = `{
                 }
             }
         },
+        "/field/{id}/media": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieves all media associated with a specific field",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Field"
+                ],
+                "summary": "Get media by field",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "field ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.MediaResponse"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Field not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to fetch Media for Field !",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/fields": {
             "get": {
                 "security": [
@@ -433,7 +488,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/field.FieldResponse"
+                                "$ref": "#/definitions/model.FieldResponse"
                             }
                         }
                     },
@@ -472,7 +527,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/field.FieldRequest"
+                            "$ref": "#/definitions/model.FieldRequest"
                         }
                     }
                 ],
@@ -480,7 +535,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/field.FieldResponse"
+                            "$ref": "#/definitions/model.FieldResponse"
                         }
                     },
                     "400": {
@@ -532,7 +587,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/field.FieldResponse"
+                            "$ref": "#/definitions/model.FieldResponse"
                         }
                     },
                     "404": {
@@ -639,7 +694,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/field.FieldRequest"
+                            "$ref": "#/definitions/model.FieldRequest"
                         }
                     }
                 ],
@@ -647,7 +702,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/field.FieldResponse"
+                            "$ref": "#/definitions/model.FieldResponse"
                         }
                     },
                     "400": {
@@ -701,7 +756,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/media.MediaResponse"
+                                "$ref": "#/definitions/model.MediaResponse"
                             }
                         }
                     },
@@ -740,7 +795,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/media.MediaRequest"
+                            "$ref": "#/definitions/model.MediaRequest"
                         }
                     }
                 ],
@@ -748,7 +803,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/media.MediaResponse"
+                            "$ref": "#/definitions/model.MediaResponse"
                         }
                     },
                     "400": {
@@ -800,7 +855,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/media.MediaResponse"
+                            "$ref": "#/definitions/model.MediaResponse"
                         }
                     },
                     "404": {
@@ -907,7 +962,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/media.MediaRequest"
+                            "$ref": "#/definitions/model.MediaRequest"
                         }
                     }
                 ],
@@ -915,7 +970,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/media.MediaResponse"
+                            "$ref": "#/definitions/model.MediaResponse"
                         }
                     },
                     "400": {
@@ -948,6 +1003,116 @@ const docTemplate = `{
                 }
             }
         },
+        "/media/{id}/fields": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieves fields associated with a specific media",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Media"
+                ],
+                "summary": "Get fields by Media ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "media ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.FieldResponse"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Media not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to fetch Fields for Media !",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/media/{id}/tags": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieves tags associated with a specific media",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Media"
+                ],
+                "summary": "Get tags by Media ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "media ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.TagResponse"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Media not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to fetch Tags for Media !",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/mediaFields": {
             "get": {
                 "security": [
@@ -969,7 +1134,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/mediaField.MediaFieldResponse"
+                                "$ref": "#/definitions/model.MediaFieldResponse"
                             }
                         }
                     },
@@ -1008,7 +1173,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/mediaField.MediaFieldRequest"
+                            "$ref": "#/definitions/model.MediaFieldRequest"
                         }
                     }
                 ],
@@ -1016,7 +1181,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/mediaField.MediaFieldResponse"
+                            "$ref": "#/definitions/model.MediaFieldResponse"
                         }
                     },
                     "400": {
@@ -1068,7 +1233,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/mediaField.MediaFieldResponse"
+                            "$ref": "#/definitions/model.MediaFieldResponse"
                         }
                     },
                     "404": {
@@ -1175,7 +1340,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/mediaField.MediaFieldRequest"
+                            "$ref": "#/definitions/model.MediaFieldRequest"
                         }
                     }
                 ],
@@ -1183,7 +1348,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/mediaField.MediaFieldResponse"
+                            "$ref": "#/definitions/model.MediaFieldResponse"
                         }
                     },
                     "400": {
@@ -1216,6 +1381,329 @@ const docTemplate = `{
                 }
             }
         },
+        "/tag": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve all tags",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tag"
+                ],
+                "summary": "Get all tags",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.TagResponse"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Creates a new Tag entry in the database",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tag"
+                ],
+                "summary": "Create a new Tag",
+                "parameters": [
+                    {
+                        "description": "Tag creation payload",
+                        "name": "tag",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.TagRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.TagResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid Tag POST request payload !",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to create Tag !",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/tag/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieves a specific tag from the database by its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tag"
+                ],
+                "summary": "Get tag by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "tag ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.TagResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Tag not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to find specific Tag !",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Deletes a tag from the database by its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tag"
+                ],
+                "summary": "Delete a tag",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Tag ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Tag deleted successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Tag not found !",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to delete Tag !",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update an existing tag",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tag"
+                ],
+                "summary": "Update a tag",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Tag ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated tag payload",
+                        "name": "tag",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.TagRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.TagResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/tag/{id}/media": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieves all media associated with a specific tag",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tag"
+                ],
+                "summary": "Get media by tag",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "tag ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.MediaResponse"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Tag not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to fetch Media for Tag !",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/users": {
             "get": {
                 "security": [
@@ -1237,7 +1725,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/user.UserResponse"
+                                "$ref": "#/definitions/model.UserResponse"
                             }
                         }
                     },
@@ -1276,7 +1764,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/user.UserRequest"
+                            "$ref": "#/definitions/model.UserRequest"
                         }
                     }
                 ],
@@ -1284,7 +1772,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/user.UserResponse"
+                            "$ref": "#/definitions/model.UserResponse"
                         }
                     },
                     "400": {
@@ -1336,7 +1824,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/user.UserResponse"
+                            "$ref": "#/definitions/model.UserResponse"
                         }
                     },
                     "404": {
@@ -1443,7 +1931,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/user.UserRequest"
+                            "$ref": "#/definitions/model.UserRequest"
                         }
                     }
                 ],
@@ -1451,7 +1939,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/user.UserResponse"
+                            "$ref": "#/definitions/model.UserResponse"
                         }
                     },
                     "400": {
@@ -1486,7 +1974,197 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "authentication.TokenRequest": {
+        "model.CollectionRequest": {
+            "type": "object",
+            "properties": {
+                "filters": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "name": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.CollectionResponse": {
+            "type": "object",
+            "properties": {
+                "filters": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "name": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.FieldRequest": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.FieldResponse": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.MediaFieldRequest": {
+            "type": "object",
+            "properties": {
+                "field_id": {
+                    "type": "integer"
+                },
+                "media_id": {
+                    "type": "integer"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.MediaFieldResponse": {
+            "type": "object",
+            "properties": {
+                "field_id": {
+                    "type": "integer"
+                },
+                "media_id": {
+                    "type": "integer"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.MediaRequest": {
+            "type": "object",
+            "properties": {
+                "completion_date": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "genre": {
+                    "type": "string"
+                },
+                "img_url": {
+                    "type": "string"
+                },
+                "media_type": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "rating": {
+                    "type": "integer"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.MediaResponse": {
+            "type": "object",
+            "properties": {
+                "completion_date": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "genre": {
+                    "type": "string"
+                },
+                "img_url": {
+                    "type": "string"
+                },
+                "media_id": {
+                    "type": "integer"
+                },
+                "media_type": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "rating": {
+                    "type": "integer"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.TagRequest": {
+            "type": "object",
+            "properties": {
+                "color": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.TagResponse": {
+            "type": "object",
+            "properties": {
+                "color": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "tag_id": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.TokenRequest": {
             "type": "object",
             "properties": {
                 "refresh_token": {
@@ -1494,7 +2172,7 @@ const docTemplate = `{
                 }
             }
         },
-        "authentication.TokenResponse": {
+        "model.TokenResponse": {
             "type": "object",
             "properties": {
                 "access_token": {
@@ -1508,166 +2186,7 @@ const docTemplate = `{
                 }
             }
         },
-        "collection.CollectionRequest": {
-            "type": "object",
-            "properties": {
-                "filters": {
-                    "type": "object",
-                    "additionalProperties": {}
-                },
-                "name": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "collection.CollectionResponse": {
-            "type": "object",
-            "properties": {
-                "filters": {
-                    "type": "object",
-                    "additionalProperties": {}
-                },
-                "name": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "field.FieldRequest": {
-            "type": "object",
-            "properties": {
-                "name": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "field.FieldResponse": {
-            "type": "object",
-            "properties": {
-                "name": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "media.MediaRequest": {
-            "type": "object",
-            "properties": {
-                "completion_date": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "genre": {
-                    "type": "string"
-                },
-                "img_url": {
-                    "type": "string"
-                },
-                "media_type": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "notes": {
-                    "type": "string"
-                },
-                "rating": {
-                    "type": "integer"
-                },
-                "start_date": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "media.MediaResponse": {
-            "type": "object",
-            "properties": {
-                "completion_date": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "genre": {
-                    "type": "string"
-                },
-                "img_url": {
-                    "type": "string"
-                },
-                "media_id": {
-                    "type": "integer"
-                },
-                "media_type": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "notes": {
-                    "type": "string"
-                },
-                "rating": {
-                    "type": "integer"
-                },
-                "start_date": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "mediaField.MediaFieldRequest": {
-            "type": "object",
-            "properties": {
-                "field_id": {
-                    "type": "integer"
-                },
-                "media_id": {
-                    "type": "integer"
-                },
-                "value": {
-                    "type": "string"
-                }
-            }
-        },
-        "mediaField.MediaFieldResponse": {
-            "type": "object",
-            "properties": {
-                "field_id": {
-                    "type": "integer"
-                },
-                "media_id": {
-                    "type": "integer"
-                },
-                "value": {
-                    "type": "string"
-                }
-            }
-        },
-        "user.UserRequest": {
+        "model.UserRequest": {
             "type": "object",
             "properties": {
                 "email": {
@@ -1681,7 +2200,7 @@ const docTemplate = `{
                 }
             }
         },
-        "user.UserResponse": {
+        "model.UserResponse": {
             "type": "object",
             "properties": {
                 "email": {

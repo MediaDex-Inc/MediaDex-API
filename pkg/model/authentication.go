@@ -1,4 +1,4 @@
-package authentication
+package model
 
 import (
 	"errors"
@@ -9,9 +9,9 @@ type TokenRequest struct {
 	RefreshToken string `json:"refresh_token"`
 }
 
-func (t *TokenRequest) Bind(r *http.Request) error {
-	if t.RefreshToken == "" {
-		return errors.New("refresh_token is required")
+func (token *TokenRequest) Bind(r *http.Request) error {
+	if token.RefreshToken == "" {
+		return errors.New("refresh token must not be null")
 	}
 	return nil
 }

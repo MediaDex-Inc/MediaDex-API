@@ -3,8 +3,7 @@ package media
 import (
 	"mediadex/config"
 	"mediadex/database/dbmodel"
-	"mediadex/pkg/field"
-	"mediadex/pkg/tag"
+	"mediadex/pkg/model"
 	"net/http"
 	"strconv"
 
@@ -26,16 +25,16 @@ func New(config *config.Config) *MediaConfig {
 // @Tags         Media
 // @Accept       json
 // @Produce      json
-// @Param        media  body      MediaRequest  true  "Media creation payload"
+// @Param        media  body      model.MediaRequest  true  "Media creation payload"
 // @Security     BearerAuth
-// @Success      200    {object}  MediaResponse
+// @Success      200    {object}  model.MediaResponse
 // @Failure      400    {object}  map[string]string  "Invalid Media POST request payload !"
 // @Failure      500    {object}  map[string]string  "Failed to create Media !"
 // @Router       /media [post]
 func (config *MediaConfig) PostHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Get the request.
-	req := &MediaRequest{}
+	req := &model.MediaRequest{}
 	if err := render.Bind(r, req); err != nil {
 		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, map[string]string{"Error": "Invalid Media POST request payload !" + err.Error()})
@@ -63,7 +62,7 @@ func (config *MediaConfig) PostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Set up to a dedicated type for the response.
-	res := &MediaResponse{
+	res := &model.MediaResponse{
 		ID:          savedMedia.ID,
 		UserId:      savedMedia.UserId,
 		Name:        savedMedia.Name,
@@ -86,7 +85,7 @@ func (config *MediaConfig) PostHandler(w http.ResponseWriter, r *http.Request) {
 // @Produce      json
 // @Param        id   path      string  true  "media ID"
 // @Security     BearerAuth
-// @Success      200  {object}  MediaResponse
+// @Success      200  {object}  model.MediaResponse
 // @Failure      404  {object}  map[string]string  "Media not found"
 // @Failure      500  {object}  map[string]string  "Failed to find specific Media !"
 // @Router       /media/{id} [get]
@@ -109,7 +108,7 @@ func (config *MediaConfig) GetByIdHandler(w http.ResponseWriter, r *http.Request
 	}
 
 	// Set up to a dedicated type for the response
-	res := &MediaResponse{
+	res := &model.MediaResponse{
 		ID:          media.ID,
 		UserId:      media.UserId,
 		Name:        media.Name,
@@ -131,7 +130,7 @@ func (config *MediaConfig) GetByIdHandler(w http.ResponseWriter, r *http.Request
 // @Tags         Media
 // @Produce      json
 // @Security     BearerAuth
-// @Success      200  {array}   MediaResponse
+// @Success      200  {array}   model.MediaResponse
 // @Failure      500  {object}  map[string]string
 // @Router       /media [get]
 func (config *MediaConfig) GetAllHandler(w http.ResponseWriter, r *http.Request) {
@@ -143,9 +142,9 @@ func (config *MediaConfig) GetAllHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	res := make([]MediaResponse, len(medias))
+	res := make([]model.MediaResponse, len(medias))
 	for i, media := range medias {
-		res[i] = MediaResponse{
+		res[i] = model.MediaResponse{
 			ID:             media.ID,
 			UserId:         media.UserId,
 			Name:           media.Name,
@@ -172,7 +171,7 @@ func (config *MediaConfig) GetAllHandler(w http.ResponseWriter, r *http.Request)
 // @Produce      json
 // @Param        id   path      string  true  "media ID"
 // @Security     BearerAuth
-// @Success      200  {array}   tag.TagResponse
+// @Success      200  {array}   model.TagResponse
 // @Failure      404  {object}  map[string]string  "Media not found"
 // @Failure      500  {object}  map[string]string  "Failed to fetch Tags for Media !"
 // @Router       /media/{id}/tags [get]
@@ -191,9 +190,9 @@ func (config *MediaConfig) GetTagsByMediaHandler(w http.ResponseWriter, r *http.
 		return
 	}
 
-	res := make([]tag.TagResponse, len(tags))
+	res := make([]model.TagResponse, len(tags))
 	for i, t := range tags {
-		res[i] = tag.TagResponse{
+		res[i] = model.TagResponse{
 			ID:     t.ID,
 			UserId: t.UserId,
 			Name:   t.Name,
@@ -212,7 +211,7 @@ func (config *MediaConfig) GetTagsByMediaHandler(w http.ResponseWriter, r *http.
 // @Produce      json
 // @Param        id   path      string  true  "media ID"
 // @Security     BearerAuth
-// @Success      200  {array}   field.FieldResponse
+// @Success      200  {array}   model.FieldResponse
 // @Failure      404  {object}  map[string]string  "Media not found"
 // @Failure      500  {object}  map[string]string  "Failed to fetch Fields for Media !"
 // @Router       /media/{id}/fields [get]
@@ -231,9 +230,9 @@ func (config *MediaConfig) GetFieldsByMediaHandler(w http.ResponseWriter, r *htt
 		return
 	}
 
-	res := make([]field.FieldResponse, len(fields))
+	res := make([]model.FieldResponse, len(fields))
 	for i, f := range fields {
-		res[i] = field.FieldResponse{
+		res[i] = model.FieldResponse{
 			UserId: f.UserId,
 			Name:   f.Name,
 		}
@@ -250,9 +249,9 @@ func (config *MediaConfig) GetFieldsByMediaHandler(w http.ResponseWriter, r *htt
 // @Accept       json
 // @Produce      json
 // @Param        id     path     string        true  "Media ID"
-// @Param        media  body     MediaRequest  true  "Updated media payload"
+// @Param        media  body     model.MediaRequest  true  "Updated media payload"
 // @Security     BearerAuth
-// @Success      200   {object}  MediaResponse
+// @Success      200   {object}  model.MediaResponse
 // @Failure      400   {object}  map[string]string
 // @Failure      404   {object}  map[string]string
 // @Failure      500   {object}  map[string]string
@@ -268,7 +267,7 @@ func (config *MediaConfig) UpdateHandler(w http.ResponseWriter, r *http.Request)
 	}
 
 	// Get the request
-	req := &MediaRequest{}
+	req := &model.MediaRequest{}
 	if err := render.Bind(r, req); err != nil {
 		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, map[string]string{"error": "Invalid request payload !" + err.Error()})
@@ -312,7 +311,7 @@ func (config *MediaConfig) UpdateHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	res := MediaResponse{
+	res := model.MediaResponse{
 		ID:          updatedMedia.ID,
 		UserId:      updatedMedia.UserId,
 		Name:        updatedMedia.Name,

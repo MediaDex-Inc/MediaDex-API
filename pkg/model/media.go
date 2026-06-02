@@ -1,4 +1,4 @@
-package media
+package model
 
 import (
 	"errors"
@@ -21,28 +21,26 @@ type MediaRequest struct {
 	CompletionDate *t.Time `json:"completion_date"`
 }
 
-func (a *MediaRequest) Bind(r *http.Request) error {
-
+func (media *MediaRequest) Bind(r *http.Request) error {
 	status := []string{"Planned", "In Progress", "Paused", "Completed", "Abandoned", "For Later"}
 	types := []string{"Film", "Shows", "Games", "Books"}
 
-	if a.UserId == 0 {
-		return errors.New("No valid user id has been submited !")
+	if media.UserId == 0 {
+		return errors.New("user_id must not be null")
 	}
-	if a.Name == "" {
-		return errors.New("No valid name has been submited !")
+	if media.Name == "" {
+		return errors.New("name must not be null")
 	}
-	if !(slices.Contains(status, a.Status)) {
-		return errors.New("No valid status has been submited !")
+	if !slices.Contains(status, media.Status) {
+		return errors.New("status is invalid")
 	}
-	if slices.Contains(types, a.MediaType) {
-		return errors.New("No valid media type has benn submited !")
+	if !slices.Contains(types, media.MediaType) {
+		return errors.New("media_type is invalid")
 	}
 
 	return nil
 }
 
-// Custom response type
 type MediaResponse struct {
 	ID             uint    `json:"media_id"`
 	UserId         uint    `json:"user_id"`

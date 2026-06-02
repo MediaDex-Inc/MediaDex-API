@@ -3,7 +3,7 @@ package field
 import (
 	"mediadex/config"
 	"mediadex/database/dbmodel"
-	"mediadex/pkg/media"
+	"mediadex/pkg/model"
 	"net/http"
 	"strconv"
 
@@ -25,16 +25,16 @@ func New(config *config.Config) *FieldConfig {
 // @Tags         Field
 // @Accept       json
 // @Produce      json
-// @Param        field  body      FieldRequest  true  "Field creation payload"
+// @Param        field  body      model.FieldRequest  true  "Field creation payload"
 // @Security     BearerAuth
-// @Success      200    {object}  FieldResponse
+// @Success      200    {object}  model.FieldResponse
 // @Failure      400    {object}  map[string]string  "Invalid Field POST request payload !"
 // @Failure      500    {object}  map[string]string  "Failed to create Field !"
 // @Router       /fields [post]
 func (config *FieldConfig) PostHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Get the request.
-	req := &FieldRequest{}
+	req := &model.FieldRequest{}
 	if err := render.Bind(r, req); err != nil {
 		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, map[string]string{"Error": "Invalid Field POST request payload !" + err.Error()})
@@ -55,7 +55,7 @@ func (config *FieldConfig) PostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Set up to a dedicated type for the response.
-	res := &FieldResponse{
+	res := &model.FieldResponse{
 		UserId: savedField.UserId,
 		Name:   savedField.Name}
 
@@ -70,7 +70,7 @@ func (config *FieldConfig) PostHandler(w http.ResponseWriter, r *http.Request) {
 // @Produce      json
 // @Param        id   path      string  true  "field ID"
 // @Security     BearerAuth
-// @Success      200  {object}  FieldResponse
+// @Success      200  {object}  model.FieldResponse
 // @Failure      404  {object}  map[string]string  "Field not found"
 // @Failure      500  {object}  map[string]string  "Failed to find specific Field !"
 // @Router       /fields/{id} [get]
@@ -93,7 +93,7 @@ func (config *FieldConfig) GetByIdHandler(w http.ResponseWriter, r *http.Request
 	}
 
 	// Set up to a dedicated type for the response
-	res := &FieldResponse{
+	res := &model.FieldResponse{
 		UserId: field.UserId,
 		Name:   field.Name}
 
@@ -107,7 +107,7 @@ func (config *FieldConfig) GetByIdHandler(w http.ResponseWriter, r *http.Request
 // @Tags         Field
 // @Produce      json
 // @Security     BearerAuth
-// @Success      200  {array}   FieldResponse
+// @Success      200  {array}   model.FieldResponse
 // @Failure      500  {object}  map[string]string
 // @Router       /fields [get]
 func (config *FieldConfig) GetAllHandler(w http.ResponseWriter, r *http.Request) {
@@ -118,9 +118,9 @@ func (config *FieldConfig) GetAllHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	res := make([]FieldResponse, len(fields))
+	res := make([]model.FieldResponse, len(fields))
 	for i, field := range fields {
-		res[i] = FieldResponse{
+		res[i] = model.FieldResponse{
 			UserId: field.UserId,
 			Name:   field.Name,
 		}
@@ -137,7 +137,7 @@ func (config *FieldConfig) GetAllHandler(w http.ResponseWriter, r *http.Request)
 // @Produce      json
 // @Param        id   path      string  true  "field ID"
 // @Security     BearerAuth
-// @Success      200  {array}   MediaResponse
+// @Success      200  {array}   model.MediaResponse
 // @Failure      404  {object}  map[string]string  "Field not found"
 // @Failure      500  {object}  map[string]string  "Failed to fetch Media for Field !"
 // @Router       /field/{id}/media [get]
@@ -156,9 +156,9 @@ func (config *FieldConfig) GetMediaByFieldHandler(w http.ResponseWriter, r *http
 		return
 	}
 
-	res := make([]media.MediaResponse, len(mediaItems))
+	res := make([]model.MediaResponse, len(mediaItems))
 	for i, media := range mediaItems {
-		res[i] = media.MediaResponse{
+		res[i] = model.MediaResponse{
 			ID:             media.ID,
 			UserId:         media.UserId,
 			Name:           media.Name,
@@ -185,9 +185,9 @@ func (config *FieldConfig) GetMediaByFieldHandler(w http.ResponseWriter, r *http
 // @Accept       json
 // @Produce      json
 // @Param        id     path     string        true  "Field ID"
-// @Param        field  body     FieldRequest  true  "Updated field payload"
+// @Param        field  body     model.FieldRequest  true  "Updated field payload"
 // @Security     BearerAuth
-// @Success      200   {object}  FieldResponse
+// @Success      200   {object}  model.FieldResponse
 // @Failure      400   {object}  map[string]string
 // @Failure      404   {object}  map[string]string
 // @Failure      500   {object}  map[string]string
@@ -203,7 +203,7 @@ func (config *FieldConfig) UpdateHandler(w http.ResponseWriter, r *http.Request)
 	}
 
 	// Get the request
-	req := &FieldRequest{}
+	req := &model.FieldRequest{}
 	if err := render.Bind(r, req); err != nil {
 		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, map[string]string{"error": "Invalid request payload !" + err.Error()})
@@ -232,7 +232,7 @@ func (config *FieldConfig) UpdateHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	res := FieldResponse{
+	res := model.FieldResponse{
 		UserId: updatedField.UserId,
 		Name:   updatedField.Name,
 	}

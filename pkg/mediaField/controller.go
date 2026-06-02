@@ -3,6 +3,7 @@ package mediaField
 import (
 	"mediadex/config"
 	"mediadex/database/dbmodel"
+	"mediadex/pkg/model"
 	"net/http"
 	"strconv"
 
@@ -24,16 +25,16 @@ func New(config *config.Config) *MediaFieldConfig {
 // @Tags         MediaField
 // @Accept       json
 // @Produce      json
-// @Param        mediaField  body      MediaFieldRequest  true  "MediaField creation payload"
+// @Param        mediaField  body      model.MediaFieldRequest  true  "MediaField creation payload"
 // @Security     BearerAuth
-// @Success      200    {object}  MediaFieldResponse
+// @Success      200    {object}  model.MediaFieldResponse
 // @Failure      400    {object}  map[string]string  "Invalid MediaField POST request payload !"
 // @Failure      500    {object}  map[string]string  "Failed to create MediaField !"
 // @Router       /mediaFields [post]
 func (config *MediaFieldConfig) PostHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Get the request.
-	req := &MediaFieldRequest{}
+	req := &model.MediaFieldRequest{}
 	if err := render.Bind(r, req); err != nil {
 		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, map[string]string{"Error": "Invalid MediaField POST request payload !" + err.Error()})
@@ -55,7 +56,7 @@ func (config *MediaFieldConfig) PostHandler(w http.ResponseWriter, r *http.Reque
 	}
 
 	// Set up to a dedicated type for the response.
-	res := &MediaFieldResponse{
+	res := &model.MediaFieldResponse{
 		FieldID: savedMediaField.FieldID,
 		MediaID: savedMediaField.MediaID,
 		Value:   savedMediaField.Value}
@@ -71,7 +72,7 @@ func (config *MediaFieldConfig) PostHandler(w http.ResponseWriter, r *http.Reque
 // @Produce      json
 // @Param        id   path      string  true  "mediaField ID"
 // @Security     BearerAuth
-// @Success      200  {object}  MediaFieldResponse
+// @Success      200  {object}  model.MediaFieldResponse
 // @Failure      404  {object}  map[string]string  "MediaField not found"
 // @Failure      500  {object}  map[string]string  "Failed to find specific MediaField !"
 // @Router       /mediaFields/{id} [get]
@@ -100,7 +101,7 @@ func (config *MediaFieldConfig) GetByIdHandler(w http.ResponseWriter, r *http.Re
 	}
 
 	// Set up to a dedicated type for the response
-	res := &MediaFieldResponse{
+	res := &model.MediaFieldResponse{
 		FieldID: mediaField.FieldID,
 		MediaID: mediaField.MediaID,
 		Value:   mediaField.Value}
@@ -115,7 +116,7 @@ func (config *MediaFieldConfig) GetByIdHandler(w http.ResponseWriter, r *http.Re
 // @Tags         MediaField
 // @Produce      json
 // @Security     BearerAuth
-// @Success      200  {array}   MediaFieldResponse
+// @Success      200  {array}   model.MediaFieldResponse
 // @Failure      500  {object}  map[string]string
 // @Router       /mediaFields [get]
 func (config *MediaFieldConfig) GetAllHandler(w http.ResponseWriter, r *http.Request) {
@@ -127,10 +128,10 @@ func (config *MediaFieldConfig) GetAllHandler(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	var result []MediaFieldResponse
+	var result []model.MediaFieldResponse
 
 	for _, mediaField := range mediaFields {
-		res := MediaFieldResponse{
+		res := model.MediaFieldResponse{
 			FieldID: mediaField.FieldID,
 			MediaID: mediaField.MediaID,
 			Value:   mediaField.Value,
@@ -149,9 +150,9 @@ func (config *MediaFieldConfig) GetAllHandler(w http.ResponseWriter, r *http.Req
 // @Accept       json
 // @Produce      json
 // @Param        id     path     string        true  "MediaField ID"
-// @Param        mediaField  body     MediaFieldRequest  true  "Updated mediaField payload"
+// @Param        mediaField  body     model.MediaFieldRequest  true  "Updated mediaField payload"
 // @Security     BearerAuth
-// @Success      200   {object}  MediaFieldResponse
+// @Success      200   {object}  model.MediaFieldResponse
 // @Failure      400   {object}  map[string]string
 // @Failure      404   {object}  map[string]string
 // @Failure      500   {object}  map[string]string
@@ -173,7 +174,7 @@ func (config *MediaFieldConfig) UpdateHandler(w http.ResponseWriter, r *http.Req
 	}
 
 	// Get the request
-	req := &MediaFieldRequest{}
+	req := &model.MediaFieldRequest{}
 	if err := render.Bind(r, req); err != nil {
 		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, map[string]string{"error": "Invalid request payload !" + err.Error()})
@@ -205,7 +206,7 @@ func (config *MediaFieldConfig) UpdateHandler(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	res := MediaFieldResponse{
+	res := model.MediaFieldResponse{
 		FieldID: updatedMediaField.FieldID,
 		MediaID: updatedMediaField.MediaID,
 		Value:   updatedMediaField.Value,

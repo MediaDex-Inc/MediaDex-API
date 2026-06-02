@@ -1,4 +1,4 @@
-package collection
+package model
 
 import (
 	"errors"
@@ -11,21 +11,20 @@ type CollectionRequest struct {
 	Filters map[string]any `json:"filters"`
 }
 
-func (a *CollectionRequest) Bind(r *http.Request) error {
-	if a.UserId == 0 {
-		return errors.New("No valid user_id has been submited !")
+func (collection *CollectionRequest) Bind(r *http.Request) error {
+	if collection.UserId == 0 {
+		return errors.New("user_id must not be null")
 	}
-	if a.Name == "" {
-		return errors.New("No valid name has been submited !")
+	if collection.Name == "" {
+		return errors.New("name must not be null")
 	}
-	if a.Filters == nil {
-		return errors.New("No valid filters has been submited !")
+	if collection.Filters == nil {
+		return errors.New("filters must not be null")
 	}
 
 	return nil
 }
 
-// Custom response type
 type CollectionResponse struct {
 	UserId  uint           `json:"user_id"`
 	Name    string         `json:"name"`

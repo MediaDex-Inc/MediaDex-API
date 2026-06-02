@@ -3,7 +3,7 @@ package authentication
 import (
 	"mediadex/config"
 	"mediadex/database/dbmodel"
-	"mediadex/pkg/user"
+	"mediadex/pkg/model"
 	"net/http"
 
 	"github.com/go-chi/render"
@@ -23,12 +23,12 @@ func New(configuration *config.Config) *AuthConfig {
 // @Tags			authentication
 // @Accept			json
 // @Produce		json
-// @Param			request	body		user.UserRequest	true	"Login credentials"
-// @Success		200		{object}	TokenResponse
+// @Param			request	body		model.UserRequest	true	"Login credentials"
+// @Success		200		{object}	model.TokenResponse
 // @Failure 400 {object} map[string]string
 // @Router			/auth/login [post]
 func (config *AuthConfig) LoginHandler(w http.ResponseWriter, r *http.Request) {
-	req := &user.UserRequest{}
+	req := &model.UserRequest{}
 	if err := render.Bind(r, req); err != nil {
 		render.JSON(w, r, map[string]string{"error": "Invalid request req"})
 		return
@@ -59,7 +59,7 @@ func (config *AuthConfig) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tokens := &TokenResponse{
+	tokens := &model.TokenResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 		TokenType:    "bearer",
@@ -73,12 +73,12 @@ func (config *AuthConfig) LoginHandler(w http.ResponseWriter, r *http.Request) {
 // @Tags			authentication
 // @Accept			json
 // @Produce		json
-// @Param			request	body		user.UserRequest	true	"Register credentials"
-// @Success		200		{object}	TokenResponse
+// @Param			request	body		model.UserRequest	true	"Register credentials"
+// @Success		200		{object}	model.TokenResponse
 // @Failure 400 {object} map[string]string
 // @Router			/auth/register [post]
 func (config *AuthConfig) RegisterHandler(w http.ResponseWriter, r *http.Request) {
-	req := &user.UserRequest{}
+	req := &model.UserRequest{}
 	if err := render.Bind(r, req); err != nil {
 		render.JSON(w, r, map[string]string{"error": "Invalid request payload"})
 		return
@@ -104,7 +104,7 @@ func (config *AuthConfig) RegisterHandler(w http.ResponseWriter, r *http.Request
 		render.JSON(w, r, map[string]string{"error": "Failed to create user"})
 		return
 	}
-	user := &user.UserResponse{ID: res.ID, Email: res.Email, Username: res.Username}
+	user := &model.UserResponse{ID: res.ID, Email: res.Email, Username: res.Username}
 
 	accessToken, err := GenerateToken(config.JWTSecret, user.Email)
 	if err != nil {
@@ -116,7 +116,7 @@ func (config *AuthConfig) RegisterHandler(w http.ResponseWriter, r *http.Request
 		render.JSON(w, r, map[string]string{"error": "Failed to generate refresh token"})
 		return
 	}
-	tokens := &TokenResponse{
+	tokens := &model.TokenResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 		TokenType:    "bearer",
@@ -130,12 +130,12 @@ func (config *AuthConfig) RegisterHandler(w http.ResponseWriter, r *http.Request
 // @Tags			authentication
 // @Accept			json
 // @Produce		json
-// @Param			request	body		TokenRequest	true	"Refresh token"
-// @Success		200		{object}	TokenResponse
+// @Param			request	body		model.TokenRequest	true	"Refresh token"
+// @Success		200		{object}	model.TokenResponse
 // @Failure 400 {object} map[string]string
 // @Router			/auth/refresh [post]
 func (config *AuthConfig) RefreshHandler(w http.ResponseWriter, r *http.Request) {
-	req := &TokenRequest{}
+	req := &model.TokenRequest{}
 	if err := render.Bind(r, req); err != nil {
 		render.JSON(w, r, map[string]string{"error": "Invalid request req"})
 		return
@@ -163,7 +163,7 @@ func (config *AuthConfig) RefreshHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	tokens := &TokenResponse{
+	tokens := &model.TokenResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 		TokenType:    "bearer",

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"mediadex/config"
 	"mediadex/database/dbmodel"
+	"mediadex/pkg/model"
 	"net/http"
 	"strconv"
 
@@ -25,16 +26,16 @@ func New(config *config.Config) *CollectionConfig {
 // @Tags         Collections
 // @Accept       json
 // @Produce      json
-// @Param        collection  body      CollectionRequest  true  "Collection creation payload"
+// @Param        collection  body      model.CollectionRequest  true  "Collection creation payload"
 // @Security     BearerAuth
-// @Success      200    {object}  CollectionResponse
+// @Success      200    {object}  model.CollectionResponse
 // @Failure      400    {object}  map[string]string  "Invalid Collection POST request payload !"
 // @Failure      500    {object}  map[string]string  "Failed to create Collection !"
 // @Router       /collections [post]
 func (config *CollectionConfig) PostHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Get the request.
-	req := &CollectionRequest{}
+	req := &model.CollectionRequest{}
 	if err := render.Bind(r, req); err != nil {
 		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, map[string]string{"Error": "Invalid Collection POST request payload !" + err.Error()})
@@ -67,7 +68,7 @@ func (config *CollectionConfig) PostHandler(w http.ResponseWriter, r *http.Reque
 	}
 
 	// Set up to a dedicated type for the response.
-	res := &CollectionResponse{
+	res := &model.CollectionResponse{
 		UserId:  savedCollection.UserId,
 		Name:    savedCollection.Name,
 		Filters: newFilters,
@@ -84,7 +85,7 @@ func (config *CollectionConfig) PostHandler(w http.ResponseWriter, r *http.Reque
 // @Produce      json
 // @Param        id   path      string  true  "collection ID"
 // @Security     BearerAuth
-// @Success      200  {object}  CollectionResponse
+// @Success      200  {object}  model.CollectionResponse
 // @Failure      404  {object}  map[string]string  "Collection not found"
 // @Failure      500  {object}  map[string]string  "Failed to find specific Collection !"
 // @Router       /collections/{id} [get]
@@ -113,7 +114,7 @@ func (config *CollectionConfig) GetByIdHandler(w http.ResponseWriter, r *http.Re
 	}
 
 	// Set up to a dedicated type for the response
-	res := &CollectionResponse{
+	res := &model.CollectionResponse{
 		UserId:  collection.UserId,
 		Name:    collection.Name,
 		Filters: newFilters,
@@ -129,7 +130,7 @@ func (config *CollectionConfig) GetByIdHandler(w http.ResponseWriter, r *http.Re
 // @Tags         Collections
 // @Produce      json
 // @Security     BearerAuth
-// @Success      200  {array}   CollectionResponse
+// @Success      200  {array}   model.CollectionResponse
 // @Failure      500  {object}  map[string]string
 // @Router       /collections [get]
 func (config *CollectionConfig) GetAllHandler(w http.ResponseWriter, r *http.Request) {
@@ -141,7 +142,7 @@ func (config *CollectionConfig) GetAllHandler(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	var result []CollectionResponse
+	var result []model.CollectionResponse
 
 	for _, collection := range collections {
 
@@ -151,7 +152,7 @@ func (config *CollectionConfig) GetAllHandler(w http.ResponseWriter, r *http.Req
 			render.JSON(w, r, map[string]string{"Error": "failed to parse filters value " + errUnmarshal.Error()})
 		}
 
-		res := CollectionResponse{
+		res := model.CollectionResponse{
 			UserId:  collection.UserId,
 			Name:    collection.Name,
 			Filters: newFilters,
@@ -170,9 +171,9 @@ func (config *CollectionConfig) GetAllHandler(w http.ResponseWriter, r *http.Req
 // @Accept       json
 // @Produce      json
 // @Param        id     path     string        true  "Collection ID"
-// @Param        collection  body     CollectionRequest  true  "Updated collection payload"
+// @Param        collection  body     model.CollectionRequest  true  "Updated collection payload"
 // @Security     BearerAuth
-// @Success      200   {object}  CollectionResponse
+// @Success      200   {object}  model.CollectionResponse
 // @Failure      400   {object}  map[string]string
 // @Failure      404   {object}  map[string]string
 // @Failure      500   {object}  map[string]string
@@ -188,7 +189,7 @@ func (config *CollectionConfig) UpdateHandler(w http.ResponseWriter, r *http.Req
 	}
 
 	// Get the request
-	req := &CollectionRequest{}
+	req := &model.CollectionRequest{}
 	if err := render.Bind(r, req); err != nil {
 		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, map[string]string{"error": "Invalid request payload !" + err.Error()})
@@ -230,7 +231,7 @@ func (config *CollectionConfig) UpdateHandler(w http.ResponseWriter, r *http.Req
 		render.JSON(w, r, map[string]string{"Error": "failed to parse new filters value" + errUnmarshal.Error()})
 	}
 
-	res := CollectionResponse{
+	res := model.CollectionResponse{
 		UserId:  updatedCollection.UserId,
 		Name:    updatedCollection.Name,
 		Filters: newFilters,

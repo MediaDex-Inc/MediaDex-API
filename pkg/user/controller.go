@@ -3,6 +3,7 @@ package user
 import (
 	"mediadex/config"
 	"mediadex/database/dbmodel"
+	"mediadex/pkg/model"
 	"net/http"
 	"strconv"
 
@@ -24,16 +25,16 @@ func New(config *config.Config) *UserConfig {
 // @Tags         User
 // @Accept       json
 // @Produce      json
-// @Param        user  body      UserRequest  true  "User creation payload"
+// @Param        user  body      model.UserRequest  true  "User creation payload"
 // @Security     BearerAuth
-// @Success      200    {object}  UserResponse
+// @Success      200    {object}  model.UserResponse
 // @Failure      400    {object}  map[string]string  "Invalid User POST request payload !"
 // @Failure      500    {object}  map[string]string  "Failed to create User !"
 // @Router       /users [post]
 func (config *UserConfig) PostHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Get the request.
-	req := &UserRequest{}
+	req := &model.UserRequest{}
 	if err := render.Bind(r, req); err != nil {
 		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, map[string]string{"Error": "Invalid User POST request payload !" + err.Error()})
@@ -56,7 +57,7 @@ func (config *UserConfig) PostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Set up to a dedicated type for the response.
-	res := &UserResponse{
+	res := &model.UserResponse{
 		Username: savedUser.Username,
 		Email:    savedUser.Email,
 	}
@@ -72,7 +73,7 @@ func (config *UserConfig) PostHandler(w http.ResponseWriter, r *http.Request) {
 // @Produce      json
 // @Param        id   path      string  true  "User ID"
 // @Security     BearerAuth
-// @Success      200  {object}  UserResponse
+// @Success      200  {object}  model.UserResponse
 // @Failure      404  {object}  map[string]string  "User not found"
 // @Failure      500  {object}  map[string]string  "Failed to find specific User !"
 // @Router       /users/{id} [get]
@@ -95,7 +96,7 @@ func (config *UserConfig) GetByIdHandler(w http.ResponseWriter, r *http.Request)
 	}
 
 	// Set up to a dedicated type for the response
-	res := &UserResponse{
+	res := &model.UserResponse{
 		Username: user.Username,
 		Email:    user.Email,
 	}
@@ -110,7 +111,7 @@ func (config *UserConfig) GetByIdHandler(w http.ResponseWriter, r *http.Request)
 // @Tags         User
 // @Produce      json
 // @Security     BearerAuth
-// @Success      200  {array}   UserResponse
+// @Success      200  {array}   model.UserResponse
 // @Failure      500  {object}  map[string]string
 // @Router       /users [get]
 func (config *UserConfig) GetAllHandler(w http.ResponseWriter, r *http.Request) {
@@ -122,10 +123,10 @@ func (config *UserConfig) GetAllHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	var result []UserResponse
+	var result []model.UserResponse
 
 	for _, user := range users {
-		res := UserResponse{
+		res := model.UserResponse{
 			ID:       user.ID,
 			Email:    user.Email,
 			Username: user.Username,
@@ -144,9 +145,9 @@ func (config *UserConfig) GetAllHandler(w http.ResponseWriter, r *http.Request) 
 // @Accept       json
 // @Produce      json
 // @Param        id     path     string        true  "User ID"
-// @Param        user  body     UserRequest  true  "Updated user payload"
+// @Param        user  body     model.UserRequest  true  "Updated user payload"
 // @Security     BearerAuth
-// @Success      200   {object}  UserResponse
+// @Success      200   {object}  model.UserResponse
 // @Failure      400   {object}  map[string]string
 // @Failure      404   {object}  map[string]string
 // @Failure      500   {object}  map[string]string
@@ -162,7 +163,7 @@ func (config *UserConfig) UpdateHandler(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// Get the request
-	req := &UserRequest{}
+	req := &model.UserRequest{}
 	if err := render.Bind(r, req); err != nil {
 		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, map[string]string{"error": "Invalid request payload !" + err.Error()})
@@ -194,7 +195,7 @@ func (config *UserConfig) UpdateHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	res := UserResponse{
+	res := model.UserResponse{
 		Email:    updatedUser.Email,
 		Username: updatedUser.Username,
 	}

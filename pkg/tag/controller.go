@@ -3,7 +3,7 @@ package tag
 import (
 	"mediadex/config"
 	"mediadex/database/dbmodel"
-	"mediadex/pkg/media"
+	"mediadex/pkg/model"
 	"net/http"
 	"strconv"
 
@@ -25,14 +25,14 @@ func New(config *config.Config) *TagConfig {
 // @Tags         Tag
 // @Accept       json
 // @Produce      json
-// @Param        tag   body      TagRequest  true  "Tag creation payload"
+// @Param        tag   body      model.TagRequest  true  "Tag creation payload"
 // @Security     BearerAuth
-// @Success      200   {object}  TagResponse
+// @Success      200   {object}  model.TagResponse
 // @Failure      400   {object}  map[string]string  "Invalid Tag POST request payload !"
 // @Failure      500   {object}  map[string]string  "Failed to create Tag !"
 // @Router       /tag [post]
 func (config *TagConfig) PostHandler(w http.ResponseWriter, r *http.Request) {
-	req := &TagRequest{}
+	req := &model.TagRequest{}
 	if err := render.Bind(r, req); err != nil {
 		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, map[string]string{"Error": "Invalid Tag POST request payload !" + err.Error()})
@@ -42,6 +42,7 @@ func (config *TagConfig) PostHandler(w http.ResponseWriter, r *http.Request) {
 	tag := &dbmodel.Tag{
 		UserId: req.UserId,
 		Name:   req.Name,
+		Color:  req.Color,
 	}
 
 	savedTag, err := config.TagRepository.Create(tag)
@@ -51,7 +52,7 @@ func (config *TagConfig) PostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res := &TagResponse{
+	res := &model.TagResponse{
 		ID:     savedTag.ID,
 		UserId: savedTag.UserId,
 		Name:   savedTag.Name,
@@ -69,7 +70,7 @@ func (config *TagConfig) PostHandler(w http.ResponseWriter, r *http.Request) {
 // @Produce      json
 // @Param        id   path      string  true  "tag ID"
 // @Security     BearerAuth
-// @Success      200  {object}  TagResponse
+// @Success      200  {object}  model.TagResponse
 // @Failure      404  {object}  map[string]string  "Tag not found"
 // @Failure      500  {object}  map[string]string  "Failed to find specific Tag !"
 // @Router       /tag/{id} [get]
@@ -88,7 +89,7 @@ func (config *TagConfig) GetByIdHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	res := &TagResponse{
+	res := &model.TagResponse{
 		ID:     tag.ID,
 		UserId: tag.UserId,
 		Name:   tag.Name,
@@ -105,7 +106,7 @@ func (config *TagConfig) GetByIdHandler(w http.ResponseWriter, r *http.Request) 
 // @Tags         Tag
 // @Produce      json
 // @Security     BearerAuth
-// @Success      200  {array}   TagResponse
+// @Success      200  {array}   model.TagResponse
 // @Failure      500  {object}  map[string]string
 // @Router       /tag [get]
 func (config *TagConfig) GetAllHandler(w http.ResponseWriter, r *http.Request) {
@@ -116,9 +117,9 @@ func (config *TagConfig) GetAllHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res := make([]TagResponse, len(tags))
+	res := make([]model.TagResponse, len(tags))
 	for i, tag := range tags {
-		res[i] = TagResponse{
+		res[i] = model.TagResponse{
 			ID:     tag.ID,
 			UserId: tag.UserId,
 			Name:   tag.Name,
@@ -137,7 +138,7 @@ func (config *TagConfig) GetAllHandler(w http.ResponseWriter, r *http.Request) {
 // @Produce      json
 // @Param        id   path      string  true  "tag ID"
 // @Security     BearerAuth
-// @Success      200  {array}   MediaResponse
+// @Success      200  {array}   model.MediaResponse
 // @Failure      404  {object}  map[string]string  "Tag not found"
 // @Failure      500  {object}  map[string]string  "Failed to fetch Media for Tag !"
 // @Router       /tag/{id}/media [get]
@@ -156,9 +157,9 @@ func (config *TagConfig) GetMediaByTagHandler(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	res := make([]media.MediaResponse, len(mediaItems))
+	res := make([]model.MediaResponse, len(mediaItems))
 	for i, media := range mediaItems {
-		res[i] = media.MediaResponse{
+		res[i] = model.MediaResponse{
 			ID:             media.ID,
 			UserId:         media.UserId,
 			Name:           media.Name,
@@ -185,9 +186,9 @@ func (config *TagConfig) GetMediaByTagHandler(w http.ResponseWriter, r *http.Req
 // @Accept       json
 // @Produce      json
 // @Param        id     path     string      true  "Tag ID"
-// @Param        tag    body     TagRequest  true  "Updated tag payload"
+// @Param        tag    body     model.TagRequest  true  "Updated tag payload"
 // @Security     BearerAuth
-// @Success      200   {object}  TagResponse
+// @Success      200   {object}  model.TagResponse
 // @Failure      400   {object}  map[string]string
 // @Failure      404   {object}  map[string]string
 // @Failure      500   {object}  map[string]string
@@ -200,7 +201,7 @@ func (config *TagConfig) UpdateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	req := &TagRequest{}
+	req := &model.TagRequest{}
 	if err := render.Bind(r, req); err != nil {
 		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, map[string]string{"error": "Invalid request payload !" + err.Error()})
@@ -216,6 +217,7 @@ func (config *TagConfig) UpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 	existing.UserId = req.UserId
 	existing.Name = req.Name
+	existing.Color = req.Color
 
 	updatedTag, err := config.TagRepository.Update(existing)
 	if err != nil {
@@ -224,7 +226,7 @@ func (config *TagConfig) UpdateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res := TagResponse{
+	res := model.TagResponse{
 		ID:     updatedTag.ID,
 		UserId: updatedTag.UserId,
 		Name:   updatedTag.Name,
