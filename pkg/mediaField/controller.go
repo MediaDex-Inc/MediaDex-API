@@ -177,13 +177,13 @@ func (config *MediaFieldConfig) UpdateHandler(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	if req.FieldID <= 0 {
+	if req.FieldID > 0 {
 		existing.FieldID = req.FieldID
 	}
-	if req.MediaID <= 0 {
+	if req.MediaID > 0 {
 		existing.MediaID = req.MediaID
 	}
-	if req.Value == "" {
+	if req.Value != "" {
 		existing.Value = req.Value
 	}
 
