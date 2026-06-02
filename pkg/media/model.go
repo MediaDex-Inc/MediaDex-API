@@ -26,16 +26,16 @@ func (a *MediaRequest) Bind(r *http.Request) error {
 	status := []string{"Planned", "In Progress", "Paused", "Completed", "Abandoned", "For Later"}
 	types := []string{"Film", "Shows", "Games", "Books"}
 
-	if &a.UserId == nil || a.UserId == 0 {
+	if a.UserId == 0 {
 		return errors.New("No valid user id has been submited !")
 	}
-	if &a.Name == nil || a.Name == "" {
+	if a.Name == "" {
 		return errors.New("No valid name has been submited !")
 	}
-	if &a.Status == nil || slices.Contains(status, a.Status) {
+	if slices.Contains(status, a.Status) {
 		return errors.New("No valid status has been submited !")
 	}
-	if &a.MediaType == nil || slices.Contains(types, a.MediaType) {
+	if slices.Contains(types, a.MediaType) {
 		return errors.New("No valid media type has benn submited !")
 	}
 
@@ -44,6 +44,7 @@ func (a *MediaRequest) Bind(r *http.Request) error {
 
 // Custom response type
 type MediaResponse struct {
+	ID             uint    `json:"media_id"`
 	UserId         uint    `json:"user_id"`
 	Name           string  `json:"name"`
 	Status         string  `json:"status"`

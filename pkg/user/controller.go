@@ -29,7 +29,7 @@ func New(config *config.Config) *UserConfig {
 // @Success      200    {object}  UserResponse
 // @Failure      400    {object}  map[string]string  "Invalid User POST request payload !"
 // @Failure      500    {object}  map[string]string  "Failed to create User !"
-// @Router       /api/v1/user [post]
+// @Router       /user [post]
 func (config *UserConfig) PostHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Get the request.
@@ -75,7 +75,7 @@ func (config *UserConfig) PostHandler(w http.ResponseWriter, r *http.Request) {
 // @Success      200  {object}  UserResponse
 // @Failure      404  {object}  map[string]string  "User not found"
 // @Failure      500  {object}  map[string]string  "Failed to find specific User !"
-// @Router       /api/v1/User/{id} [get]
+// @Router       /User/{id} [get]
 func (config *UserConfig) GetByIdHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Get the id in the URL
@@ -112,10 +112,10 @@ func (config *UserConfig) GetByIdHandler(w http.ResponseWriter, r *http.Request)
 // @Security     BearerAuth
 // @Success      200  {array}   UserResponse
 // @Failure      500  {object}  map[string]string
-// @Router       /api/v1/user [get]
+// @Router       /user [get]
 func (config *UserConfig) GetAllHandler(w http.ResponseWriter, r *http.Request) {
 
-	user, err := config.UserRepository.Find()
+	user, err := config.UserRepository.FindAll()
 	if err != nil {
 		render.Status(r, http.StatusInternalServerError)
 		render.JSON(w, r, map[string]string{"Error": "failed to fetch User !" + err.Error()})
@@ -139,7 +139,7 @@ func (config *UserConfig) GetAllHandler(w http.ResponseWriter, r *http.Request) 
 // @Failure      400   {object}  map[string]string
 // @Failure      404   {object}  map[string]string
 // @Failure      500   {object}  map[string]string
-// @Router       /api/v1/user/{id} [patch]
+// @Router       /user/{id} [patch]
 func (config *UserConfig) UpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Get the id in the URL
@@ -204,7 +204,7 @@ func (config *UserConfig) UpdateHandler(w http.ResponseWriter, r *http.Request) 
 // @Success      200  {object}  map[string]string  "User deleted successfully"
 // @Failure      404  {object}  map[string]string  "User not found !"
 // @Failure      500  {object}  map[string]string  "Failed to delete User !"
-// @Router       /api/v1/user/{id} [delete]
+// @Router       /user/{id} [delete]
 func (config *UserConfig) DeleteHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Get the id in the URL

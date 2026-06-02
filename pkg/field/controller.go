@@ -29,7 +29,7 @@ func New(config *config.Config) *FieldConfig {
 // @Success      200    {object}  FieldResponse
 // @Failure      400    {object}  map[string]string  "Invalid Field POST request payload !"
 // @Failure      500    {object}  map[string]string  "Failed to create Field !"
-// @Router       /api/v1/field [post]
+// @Router       /field [post]
 func (config *FieldConfig) PostHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Get the request.
@@ -72,7 +72,7 @@ func (config *FieldConfig) PostHandler(w http.ResponseWriter, r *http.Request) {
 // @Success      200  {object}  FieldResponse
 // @Failure      404  {object}  map[string]string  "Field not found"
 // @Failure      500  {object}  map[string]string  "Failed to find specific Field !"
-// @Router       /api/v1/field/{id} [get]
+// @Router       /field/{id} [get]
 func (config *FieldConfig) GetByIdHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Get the id in the URL
@@ -108,10 +108,10 @@ func (config *FieldConfig) GetByIdHandler(w http.ResponseWriter, r *http.Request
 // @Security     BearerAuth
 // @Success      200  {array}   FieldResponse
 // @Failure      500  {object}  map[string]string
-// @Router       /api/v1/field [get]
+// @Router       /field [get]
 func (config *FieldConfig) GetAllHandler(w http.ResponseWriter, r *http.Request) {
 
-	field, err := config.FieldRepository.Find()
+	field, err := config.FieldRepository.FindAll()
 	if err != nil {
 		render.Status(r, http.StatusInternalServerError)
 		render.JSON(w, r, map[string]string{"Error": "failed to fetch Field !" + err.Error()})
@@ -135,7 +135,7 @@ func (config *FieldConfig) GetAllHandler(w http.ResponseWriter, r *http.Request)
 // @Failure      400   {object}  map[string]string
 // @Failure      404   {object}  map[string]string
 // @Failure      500   {object}  map[string]string
-// @Router       /api/v1/field/{id} [patch]
+// @Router       /field/{id} [patch]
 func (config *FieldConfig) UpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Get the id in the URL
@@ -192,7 +192,7 @@ func (config *FieldConfig) UpdateHandler(w http.ResponseWriter, r *http.Request)
 // @Success      200  {object}  map[string]string  "Field deleted successfully"
 // @Failure      404  {object}  map[string]string  "Field not found !"
 // @Failure      500  {object}  map[string]string  "Failed to delete Field !"
-// @Router       /api/v1/field/{id} [delete]
+// @Router       /field/{id} [delete]
 func (config *FieldConfig) DeleteHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Get the id in the URL

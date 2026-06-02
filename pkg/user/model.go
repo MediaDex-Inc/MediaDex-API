@@ -6,19 +6,19 @@ import (
 )
 
 type UserRequest struct {
-	Username string `json:"username"`
 	Email    string `json:"email"`
+	Username string `json:"username"`
 	Password string `json:"password"`
 }
 
 func (a *UserRequest) Bind(r *http.Request) error {
-	if &a.Username == nil || a.Username == "" {
-		return errors.New("No valid username has been submited !")
-	}
-	if &a.Email == nil || a.Email == "" {
+	if a.Email == "" {
 		return errors.New("No valid email has been submited !")
 	}
-	if &a.Password == nil || a.Password == "" {
+	if a.Username == "" {
+		return errors.New("No valid username has been submited !")
+	}
+	if a.Password == "" {
 		return errors.New("No valid password type has benn submited !")
 	}
 
@@ -27,6 +27,7 @@ func (a *UserRequest) Bind(r *http.Request) error {
 
 // Custom response type
 type UserResponse struct {
-	Username string `json:"username"`
+	ID       uint   `json:"user_id"`
 	Email    string `json:"email"`
+	Username string `json:"username"`
 }

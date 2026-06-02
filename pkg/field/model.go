@@ -11,10 +11,10 @@ type FieldRequest struct {
 }
 
 func (a *FieldRequest) Bind(r *http.Request) error {
-	if &a.UserId == nil || a.UserId == 0 {
+	if a.UserId == 0 {
 		return errors.New("No valid user_id has been submited !")
 	}
-	if &a.Name == nil || a.Name == "" {
+	if a.Name == "" {
 		return errors.New("No valid name has been submited !")
 	}
 
