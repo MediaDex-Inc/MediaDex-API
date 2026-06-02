@@ -4,6 +4,8 @@ import "gorm.io/gorm"
 
 type Field struct {
 	gorm.Model
+	UserId int    `json:"user_id"`
+	Name   string `json:"name"`
 }
 
 type FieldRepository interface {
