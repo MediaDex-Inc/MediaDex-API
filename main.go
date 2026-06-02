@@ -7,6 +7,7 @@ import (
 	"mediadex/pkg/collection"
 	"mediadex/pkg/field"
 	"mediadex/pkg/media"
+	"mediadex/pkg/mediaField"
 	"mediadex/pkg/tag"
 	"mediadex/pkg/user"
 	"net/http"
@@ -40,6 +41,7 @@ func Routes(configuration *config.Config) *chi.Mux {
 		r.Mount("/collections", collection.Routes(configuration))
 		r.Mount("/fields", field.Routes(configuration))
 		r.Mount("/media", media.Routes(configuration))
+		r.Mount("/mediaField", mediaField.Routes(configuration))
 		r.Mount("/tags", tag.Routes(configuration))
 		r.Mount("/me", user.Routes(configuration))
 	})

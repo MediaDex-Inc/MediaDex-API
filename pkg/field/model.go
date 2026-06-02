@@ -6,7 +6,7 @@ import (
 )
 
 type FieldRequest struct {
-	UserId int    `json:"user_id"`
+	UserId uint   `json:"user_id"`
 	Name   string `json:"name"`
 }
 
@@ -23,6 +23,6 @@ func (a *FieldRequest) Bind(r *http.Request) error {
 
 // Custom response type
 type FieldResponse struct {
-	UserId int    `json:"user_id"`
+	UserId uint   `json:"user_id"`
 	Name   string `json:"name"`
 }

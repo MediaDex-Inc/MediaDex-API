@@ -8,7 +8,7 @@ import (
 )
 
 type MediaRequest struct {
-	UserId         int     `json:"user_id"`
+	UserId         uint    `json:"user_id"`
 	Name           string  `json:"name"`
 	Status         string  `json:"status"`
 	MediaType      string  `json:"media_type"`
@@ -44,7 +44,7 @@ func (a *MediaRequest) Bind(r *http.Request) error {
 
 // Custom response type
 type MediaResponse struct {
-	UserId         int     `json:"user_id"`
+	UserId         uint    `json:"user_id"`
 	Name           string  `json:"name"`
 	Status         string  `json:"status"`
 	MediaType      string  `json:"media_type"`

@@ -4,8 +4,11 @@ import "gorm.io/gorm"
 
 type Field struct {
 	gorm.Model
-	UserId int    `json:"user_id"`
+	UserId uint   `json:"user_id"`
 	Name   string `json:"name"`
+
+	User User `gorm:"foreignKey:UserId;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	// MediaFields []MediaField `gorm:"foreignKey:FieldID"`
 }
 
 type FieldRepository interface {

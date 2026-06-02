@@ -8,7 +8,7 @@ import (
 
 type Media struct {
 	gorm.Model
-	UserId         int     `json:"user_id"`
+	UserId         uint    `json:"user_id"`
 	Name           string  `json:"name"`
 	Status         string  `json:"status"`
 	MediaType      string  `json:"media_type"`
@@ -19,6 +19,9 @@ type Media struct {
 	Genre          *string `json:"genre"`
 	StartDate      *t.Time `json:"start_date"`
 	CompletionDate *t.Time `json:"completion_date"`
+
+	User User `gorm:"foreignKey:UserId;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	// MediaFields []MediaField `gorm:"foreignKey:MediaID"`
 }
 
 type MediaRepository interface {
