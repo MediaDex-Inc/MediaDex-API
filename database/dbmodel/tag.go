@@ -8,7 +8,7 @@ type Tag struct {
 
 type TagRepository interface {
 	Create(tag *Tag) (*Tag, error)
-	Find() ([]*Tag, error)
+	FindAll() ([]*Tag, error)
 	FindById(id uint) (*Tag, error)
 	Update(tag *Tag) (*Tag, error)
 	Delete(id uint) error
@@ -32,7 +32,7 @@ func (r *tagRepository) Create(tag *Tag) (*Tag, error) {
 }
 
 // Find all tag.
-func (r *tagRepository) Find() ([]*Tag, error) {
+func (r *tagRepository) FindAll() ([]*Tag, error) {
 	var tags []*Tag
 	if err := r.db.Find(&tags).Error; err != nil {
 		return nil, err

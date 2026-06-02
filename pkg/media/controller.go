@@ -29,7 +29,7 @@ func New(config *config.Config) *MediaConfig {
 // @Success      200    {object}  MediaResponse
 // @Failure      400    {object}  map[string]string  "Invalid Media POST request payload !"
 // @Failure      500    {object}  map[string]string  "Failed to create Media !"
-// @Router       /api/v1/media [post]
+// @Router       /media [post]
 func (config *MediaConfig) PostHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Get the request.
@@ -82,7 +82,7 @@ func (config *MediaConfig) PostHandler(w http.ResponseWriter, r *http.Request) {
 // @Success      200  {object}  MediaResponse
 // @Failure      404  {object}  map[string]string  "Media not found"
 // @Failure      500  {object}  map[string]string  "Failed to find specific Media !"
-// @Router       /api/v1/media/{id} [get]
+// @Router       /media/{id} [get]
 func (config *MediaConfig) GetByIdHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Get the id in the URL
@@ -123,10 +123,10 @@ func (config *MediaConfig) GetByIdHandler(w http.ResponseWriter, r *http.Request
 // @Security     BearerAuth
 // @Success      200  {array}   MediaResponse
 // @Failure      500  {object}  map[string]string
-// @Router       /api/v1/media [get]
+// @Router       /media [get]
 func (config *MediaConfig) GetAllHandler(w http.ResponseWriter, r *http.Request) {
 
-	media, err := config.MediaRepository.Find()
+	media, err := config.MediaRepository.FindAll()
 	if err != nil {
 		render.Status(r, http.StatusInternalServerError)
 		render.JSON(w, r, map[string]string{"Error": "failed to fetch Media !" + err.Error()})
@@ -150,7 +150,7 @@ func (config *MediaConfig) GetAllHandler(w http.ResponseWriter, r *http.Request)
 // @Failure      400   {object}  map[string]string
 // @Failure      404   {object}  map[string]string
 // @Failure      500   {object}  map[string]string
-// @Router       /api/v1/media/{id} [patch]
+// @Router       /media/{id} [patch]
 func (config *MediaConfig) UpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Get the id in the URL
@@ -217,7 +217,7 @@ func (config *MediaConfig) UpdateHandler(w http.ResponseWriter, r *http.Request)
 // @Success      200  {object}  map[string]string  "Media deleted successfully"
 // @Failure      404  {object}  map[string]string  "Media not found !"
 // @Failure      500  {object}  map[string]string  "Failed to delete Media !"
-// @Router       /api/v1/media/{id} [delete]
+// @Router       /media/{id} [delete]
 func (config *MediaConfig) DeleteHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Get the id in the URL

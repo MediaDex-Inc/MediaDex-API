@@ -10,7 +10,7 @@ type Field struct {
 
 type FieldRepository interface {
 	Create(field *Field) (*Field, error)
-	Find() ([]*Field, error)
+	FindAll() ([]*Field, error)
 	FindById(id uint) (*Field, error)
 	Update(field *Field) (*Field, error)
 	Delete(id uint) error
@@ -34,7 +34,7 @@ func (r *fieldRepository) Create(field *Field) (*Field, error) {
 }
 
 // Find all field.
-func (r *fieldRepository) Find() ([]*Field, error) {
+func (r *fieldRepository) FindAll() ([]*Field, error) {
 	var fields []*Field
 	if err := r.db.Find(&fields).Error; err != nil {
 		return nil, err

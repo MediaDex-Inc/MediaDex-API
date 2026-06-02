@@ -6,19 +6,11 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-// Routes the authentication table
-func Routes(config *config.Config) chi.Router {
-
-	// Init Router
-	authenticationConfig := New(config)
+func Routes(configuration *config.Config) chi.Router {
+	UserConfig := New(configuration)
 	router := chi.NewRouter()
-
-	// Routes
-	router.Post("/", authenticationConfig.PostHandler)
-	router.Get("/{id}", authenticationConfig.GetByIdHandler)
-	router.Get("/", authenticationConfig.GetAllHandler)
-	router.Patch("/{id}", authenticationConfig.UpdateHandler)
-	router.Delete("/{id}", authenticationConfig.DeleteHandler)
-
+	router.Post("/login", UserConfig.LoginHandler)
+	router.Post("/refresh", UserConfig.RefreshHandler)
+	router.Post("/register", UserConfig.RegisterHandler)
 	return router
 }

@@ -23,7 +23,7 @@ type Media struct {
 
 type MediaRepository interface {
 	Create(media *Media) (*Media, error)
-	Find() ([]*Media, error)
+	FindAll() ([]*Media, error)
 	FindById(id uint) (*Media, error)
 	Update(media *Media) (*Media, error)
 	Delete(id uint) error
@@ -47,7 +47,7 @@ func (r *mediaRepository) Create(media *Media) (*Media, error) {
 }
 
 // Find all media.
-func (r *mediaRepository) Find() ([]*Media, error) {
+func (r *mediaRepository) FindAll() ([]*Media, error) {
 	var medias []*Media
 	if err := r.db.Find(&medias).Error; err != nil {
 		return nil, err

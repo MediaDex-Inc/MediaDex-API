@@ -36,7 +36,7 @@ func Routes(configuration *config.Config) *chi.Mux {
 	router.Mount("/api/v1/auth", authentication.Routes(configuration))
 
 	router.Route("/api/v1", func(r chi.Router) {
-		//r.Use(authentication.AuthMiddleware(configuration.Constants.JWTSecret))
+		r.Use(authentication.AuthMiddleware(configuration.JWTSecret))
 		r.Mount("/collections", collection.Routes(configuration))
 		r.Mount("/fields", field.Routes(configuration))
 		r.Mount("/media", media.Routes(configuration))

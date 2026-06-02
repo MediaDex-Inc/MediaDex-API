@@ -8,7 +8,7 @@ type Collection struct {
 
 type CollectionRepository interface {
 	Create(collection *Collection) (*Collection, error)
-	Find() ([]*Collection, error)
+	FindAll() ([]*Collection, error)
 	FindById(id uint) (*Collection, error)
 	Update(collection *Collection) (*Collection, error)
 	Delete(id uint) error
@@ -32,7 +32,7 @@ func (r *collectionRepository) Create(collection *Collection) (*Collection, erro
 }
 
 // Find all collection.
-func (r *collectionRepository) Find() ([]*Collection, error) {
+func (r *collectionRepository) FindAll() ([]*Collection, error) {
 	var collections []*Collection
 	if err := r.db.Find(&collections).Error; err != nil {
 		return nil, err
