@@ -1,12 +1,15 @@
 package dbmodel
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/datatypes"
+	"gorm.io/gorm"
+)
 
 type Collection struct {
 	gorm.Model
-	UserId  uint     `json:"user_id"`
-	Name    string   `json:"name"`
-	Filters []string `json:"filter"`
+	UserId  uint           `json:"user_id"`
+	Name    string         `json:"name"`
+	Filters datatypes.JSON `json:"filter"`
 
 	User User `gorm:"foreignKey:UserId;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }

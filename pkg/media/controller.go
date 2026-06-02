@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 )
 
@@ -133,8 +133,24 @@ func (config *MediaConfig) GetAllHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	var result []MediaResponse
+
+	for _, med := range media {
+		res := MediaResponse{
+			ID:        med.ID,
+			UserId:    med.UserId,
+			Name:      med.Name,
+			Status:    med.Status,
+			MediaType: med.MediaType,
+			ImgURL:    med.ImgURL,
+			Rating:    med.Rating,
+			Notes:     med.Notes,
+		}
+		result = append(result, res)
+	}
+
 	render.Status(r, http.StatusOK)
-	render.JSON(w, r, media)
+	render.JSON(w, r, result)
 }
 
 // UpdateHandler godoc
@@ -177,14 +193,27 @@ func (config *MediaConfig) UpdateHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	// TODO Check if the value is null if not put in the request
-	existing.UserId = req.UserId
-	existing.Name = req.Name
-	existing.Status = req.Status
-	existing.MediaType = req.MediaType
-	existing.ImgURL = req.ImgURL
-	existing.Rating = req.Rating
-	existing.Notes = req.Notes
+	if req.UserId > 0 {
+		existing.UserId = req.UserId
+	}
+	if req.Name != "" {
+		existing.Name = req.Name
+	}
+	if req.Status != "" {
+		existing.Status = req.Status
+	}
+	if req.MediaType != "" {
+		existing.MediaType = req.MediaType
+	}
+	if *req.ImgURL != "" {
+		existing.ImgURL = req.ImgURL
+	}
+	if *req.Rating >= 0 {
+		existing.Rating = req.Rating
+	}
+	if *req.Notes != "" {
+		existing.Notes = req.Notes
+	}
 
 	updatedMedia, err := config.MediaRepository.Update(existing)
 	if err != nil {

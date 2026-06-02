@@ -6,9 +6,9 @@ import (
 )
 
 type CollectionRequest struct {
-	UserId  uint     `json:"user_id"`
-	Name    string   `json:"name"`
-	Filters []string `json:"filters"`
+	UserId  uint           `json:"user_id"`
+	Name    string         `json:"name"`
+	Filters map[string]any `json:"filters"`
 }
 
 func (a *CollectionRequest) Bind(r *http.Request) error {
@@ -27,7 +27,7 @@ func (a *CollectionRequest) Bind(r *http.Request) error {
 
 // Custom response type
 type CollectionResponse struct {
-	UserId  uint     `json:"user_id"`
-	Name    string   `json:"name"`
-	Filters []string `json:"filters"`
+	UserId  uint           `json:"user_id"`
+	Name    string         `json:"name"`
+	Filters map[string]any `json:"filters"`
 }

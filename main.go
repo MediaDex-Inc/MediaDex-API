@@ -41,7 +41,7 @@ func Routes(configuration *config.Config) *chi.Mux {
 		r.Mount("/collections", collection.Routes(configuration))
 		r.Mount("/fields", field.Routes(configuration))
 		r.Mount("/media", media.Routes(configuration))
-		r.Mount("/mediaField", mediaField.Routes(configuration))
+		r.Mount("/mediaFields", mediaField.Routes(configuration))
 		r.Mount("/tags", tag.Routes(configuration))
 		r.Mount("/me", user.Routes(configuration))
 	})

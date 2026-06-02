@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 )
 
@@ -29,7 +29,7 @@ func New(config *config.Config) *MediaFieldConfig {
 // @Success      200    {object}  MediaFieldResponse
 // @Failure      400    {object}  map[string]string  "Invalid MediaField POST request payload !"
 // @Failure      500    {object}  map[string]string  "Failed to create MediaField !"
-// @Router       /mediaField [post]
+// @Router       /mediaFields [post]
 func (config *MediaFieldConfig) PostHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Get the request.
@@ -74,7 +74,7 @@ func (config *MediaFieldConfig) PostHandler(w http.ResponseWriter, r *http.Reque
 // @Success      200  {object}  MediaFieldResponse
 // @Failure      404  {object}  map[string]string  "MediaField not found"
 // @Failure      500  {object}  map[string]string  "Failed to find specific MediaField !"
-// @Router       /mediaField/{id} [get]
+// @Router       /mediaFields/{id} [get]
 func (config *MediaFieldConfig) GetByIdHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Get the id in the URL
@@ -117,18 +117,29 @@ func (config *MediaFieldConfig) GetByIdHandler(w http.ResponseWriter, r *http.Re
 // @Security     BearerAuth
 // @Success      200  {array}   MediaFieldResponse
 // @Failure      500  {object}  map[string]string
-// @Router       /mediaField [get]
+// @Router       /mediaFields [get]
 func (config *MediaFieldConfig) GetAllHandler(w http.ResponseWriter, r *http.Request) {
 
-	mediaField, err := config.MediaFieldRepository.FindAll()
+	mediaFields, err := config.MediaFieldRepository.FindAll()
 	if err != nil {
 		render.Status(r, http.StatusInternalServerError)
 		render.JSON(w, r, map[string]string{"Error": "failed to fetcha all MediaField !" + err.Error()})
 		return
 	}
 
+	var result []MediaFieldResponse
+
+	for _, mediaField := range mediaFields {
+		res := MediaFieldResponse{
+			FieldID: mediaField.FieldID,
+			MediaID: mediaField.MediaID,
+			Value:   mediaField.Value,
+		}
+		result = append(result, res)
+	}
+
 	render.Status(r, http.StatusOK)
-	render.JSON(w, r, mediaField)
+	render.JSON(w, r, result)
 }
 
 // UpdateHandler godoc
@@ -144,7 +155,7 @@ func (config *MediaFieldConfig) GetAllHandler(w http.ResponseWriter, r *http.Req
 // @Failure      400   {object}  map[string]string
 // @Failure      404   {object}  map[string]string
 // @Failure      500   {object}  map[string]string
-// @Router       /mediaField/{id} [patch]
+// @Router       /mediaFields/{id} [patch]
 func (config *MediaFieldConfig) UpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Get the id in the URL
@@ -214,7 +225,7 @@ func (config *MediaFieldConfig) UpdateHandler(w http.ResponseWriter, r *http.Req
 // @Success      200  {object}  map[string]string  "MediaField deleted successfully"
 // @Failure      404  {object}  map[string]string  "MediaField not found !"
 // @Failure      500  {object}  map[string]string  "Failed to delete MediaField !"
-// @Router       /mediaField/{id} [delete]
+// @Router       /mediaFields/{id} [delete]
 func (config *MediaFieldConfig) DeleteHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Get the id in the URL
