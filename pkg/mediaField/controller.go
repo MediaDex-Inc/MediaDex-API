@@ -31,6 +31,8 @@ func New(config *config.Config) *MediaFieldConfig {
 // @Security     BearerAuth
 // @Success      200    {object}  model.MediaFieldResponse
 // @Failure      400    {object}  map[string]string  "Invalid MediaField POST request payload !"
+// @Failure      403    {object}  map[string]string  "Access denied"
+// @Failure      404    {object}  map[string]string  "Media or Field not found"
 // @Failure      500    {object}  map[string]string  "Failed to create MediaField !"
 // @Router       /mediaFields [post]
 func (config *MediaFieldConfig) PostHandler(w http.ResponseWriter, r *http.Request) {
@@ -100,6 +102,8 @@ func (config *MediaFieldConfig) PostHandler(w http.ResponseWriter, r *http.Reque
 // @Param        mediaID   path      string  true  "Media ID"
 // @Security     BearerAuth
 // @Success      200  {object}  model.MediaFieldResponse
+// @Failure      400  {object}  map[string]string  "Invalid ID"
+// @Failure      403  {object}  map[string]string  "Access denied"
 // @Failure      404  {object}  map[string]string  "MediaField not found"
 // @Failure      500  {object}  map[string]string  "Failed to find specific MediaField !"
 // @Router       /mediaFields/{fieldID}/{mediaID} [get]
@@ -191,6 +195,7 @@ func (config *MediaFieldConfig) GetAllHandler(w http.ResponseWriter, r *http.Req
 // @Security     BearerAuth
 // @Success      200   {object}  model.MediaFieldResponse
 // @Failure      400   {object}  map[string]string
+// @Failure      403   {object}  map[string]string  "Access denied"
 // @Failure      404   {object}  map[string]string
 // @Failure      500   {object}  map[string]string
 // @Router       /mediaFields/{fieldID}/{mediaID} [patch]
@@ -270,6 +275,8 @@ func (config *MediaFieldConfig) UpdateHandler(w http.ResponseWriter, r *http.Req
 // @Param        mediaID   path      string  true  "Media ID"
 // @Security     BearerAuth
 // @Success      200  {object}  map[string]string  "MediaField deleted successfully"
+// @Failure      400  {object}  map[string]string  "Invalid ID"
+// @Failure      403  {object}  map[string]string  "Access denied"
 // @Failure      404  {object}  map[string]string  "MediaField not found !"
 // @Failure      500  {object}  map[string]string  "Failed to delete MediaField !"
 // @Router       /mediaFields/{fieldID}/{mediaID} [delete]

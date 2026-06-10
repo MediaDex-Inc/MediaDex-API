@@ -74,6 +74,8 @@ func (config *FieldConfig) PostHandler(w http.ResponseWriter, r *http.Request) {
 // @Param        id   path      string  true  "field ID"
 // @Security     BearerAuth
 // @Success      200  {object}  model.FieldResponse
+// @Failure      400  {object}  map[string]string  "Invalid ID"
+// @Failure      403  {object}  map[string]string  "Access denied"
 // @Failure      404  {object}  map[string]string  "Field not found"
 // @Failure      500  {object}  map[string]string  "Failed to find specific Field !"
 // @Router       /fields/{id} [get]
@@ -149,6 +151,7 @@ func (config *FieldConfig) GetAllHandler(w http.ResponseWriter, r *http.Request)
 // @Param        id   path      string  true  "field ID"
 // @Security     BearerAuth
 // @Success      200  {array}   model.MediaResponse
+// @Failure      400  {object}  map[string]string  "Invalid ID"
 // @Failure      404  {object}  map[string]string  "Field not found"
 // @Failure      500  {object}  map[string]string  "Failed to fetch Media for Field !"
 // @Router       /fields/{id}/media [get]
@@ -200,6 +203,7 @@ func (config *FieldConfig) GetMediaByFieldHandler(w http.ResponseWriter, r *http
 // @Security     BearerAuth
 // @Success      200   {object}  model.FieldResponse
 // @Failure      400   {object}  map[string]string
+// @Failure      403   {object}  map[string]string  "Access denied"
 // @Failure      404   {object}  map[string]string
 // @Failure      500   {object}  map[string]string
 // @Router       /fields/{id} [patch]
@@ -264,6 +268,8 @@ func (config *FieldConfig) UpdateHandler(w http.ResponseWriter, r *http.Request)
 // @Param        id   path      string  true  "Field ID"
 // @Security     BearerAuth
 // @Success      200  {object}  map[string]string  "Field deleted successfully"
+// @Failure      400  {object}  map[string]string  "Invalid ID"
+// @Failure      403  {object}  map[string]string  "Access denied"
 // @Failure      404  {object}  map[string]string  "Field not found !"
 // @Failure      500  {object}  map[string]string  "Failed to delete Field !"
 // @Router       /fields/{id} [delete]

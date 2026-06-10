@@ -81,6 +81,8 @@ func (config *MediaConfig) PostHandler(w http.ResponseWriter, r *http.Request) {
 // @Param        id   path      string  true  "media ID"
 // @Security     BearerAuth
 // @Success      200  {object}  model.MediaResponse
+// @Failure      400  {object}  map[string]string  "Invalid ID"
+// @Failure      403  {object}  map[string]string  "Access denied"
 // @Failure      404  {object}  map[string]string  "Media not found"
 // @Failure      500  {object}  map[string]string  "Failed to find specific Media !"
 // @Router       /media/{id} [get]
@@ -151,6 +153,7 @@ func (config *MediaConfig) GetAllHandler(w http.ResponseWriter, r *http.Request)
 // @Param        id   path      string  true  "media ID"
 // @Security     BearerAuth
 // @Success      200  {array}   model.TagResponse
+// @Failure      400  {object}  map[string]string  "Invalid ID"
 // @Failure      404  {object}  map[string]string  "Media not found"
 // @Failure      500  {object}  map[string]string  "Failed to fetch Tags for Media !"
 // @Router       /media/{id}/tags [get]
@@ -191,6 +194,7 @@ func (config *MediaConfig) GetTagsByMediaHandler(w http.ResponseWriter, r *http.
 // @Param        id   path      string  true  "media ID"
 // @Security     BearerAuth
 // @Success      200  {array}   model.FieldResponse
+// @Failure      400  {object}  map[string]string  "Invalid ID"
 // @Failure      404  {object}  map[string]string  "Media not found"
 // @Failure      500  {object}  map[string]string  "Failed to fetch Fields for Media !"
 // @Router       /media/{id}/fields [get]
@@ -232,6 +236,7 @@ func (config *MediaConfig) GetFieldsByMediaHandler(w http.ResponseWriter, r *htt
 // @Security     BearerAuth
 // @Success      200   {object}  model.MediaResponse
 // @Failure      400   {object}  map[string]string
+// @Failure      403   {object}  map[string]string  "Access denied"
 // @Failure      404   {object}  map[string]string
 // @Failure      500   {object}  map[string]string
 // @Router       /media/{id} [patch]
@@ -325,6 +330,8 @@ func (config *MediaConfig) UpdateHandler(w http.ResponseWriter, r *http.Request)
 // @Param        id   path      string  true  "Media ID"
 // @Security     BearerAuth
 // @Success      200  {object}  map[string]string  "Media deleted successfully"
+// @Failure      400  {object}  map[string]string  "Invalid ID"
+// @Failure      403  {object}  map[string]string  "Access denied"
 // @Failure      404  {object}  map[string]string  "Media not found !"
 // @Failure      500  {object}  map[string]string  "Failed to delete Media !"
 // @Router       /media/{id} [delete]

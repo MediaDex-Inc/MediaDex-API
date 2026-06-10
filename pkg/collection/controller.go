@@ -77,6 +77,8 @@ func (config *CollectionConfig) PostHandler(w http.ResponseWriter, r *http.Reque
 // @Param        id   path      string  true  "collection ID"
 // @Security     BearerAuth
 // @Success      200  {object}  model.CollectionResponse
+// @Failure      400  {object}  map[string]string  "Invalid ID"
+// @Failure      403  {object}  map[string]string  "Access denied"
 // @Failure      404  {object}  map[string]string  "Collection not found"
 // @Failure      500  {object}  map[string]string  "Failed to find specific Collection !"
 // @Router       /collections/{id} [get]
@@ -159,6 +161,7 @@ func (config *CollectionConfig) GetAllHandler(w http.ResponseWriter, r *http.Req
 // @Security     BearerAuth
 // @Success      200   {object}  model.CollectionResponse
 // @Failure      400   {object}  map[string]string
+// @Failure      403   {object}  map[string]string  "Access denied"
 // @Failure      404   {object}  map[string]string
 // @Failure      500   {object}  map[string]string
 // @Router       /collections/{id} [patch]
@@ -227,6 +230,8 @@ func (config *CollectionConfig) UpdateHandler(w http.ResponseWriter, r *http.Req
 // @Param        id   path      string  true  "Collection ID"
 // @Security     BearerAuth
 // @Success      200  {object}  map[string]string  "Collection deleted successfully"
+// @Failure      400  {object}  map[string]string  "Invalid ID"
+// @Failure      403  {object}  map[string]string  "Access denied"
 // @Failure      404  {object}  map[string]string  "Collection not found !"
 // @Failure      500  {object}  map[string]string  "Failed to delete Collection !"
 // @Router       /collections/{id} [delete]

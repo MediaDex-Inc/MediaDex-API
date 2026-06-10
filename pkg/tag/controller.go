@@ -74,6 +74,8 @@ func (config *TagConfig) PostHandler(w http.ResponseWriter, r *http.Request) {
 // @Param        id   path      string  true  "tag ID"
 // @Security     BearerAuth
 // @Success      200  {object}  model.TagResponse
+// @Failure      400  {object}  map[string]string  "Invalid ID"
+// @Failure      403  {object}  map[string]string  "Access denied"
 // @Failure      404  {object}  map[string]string  "Tag not found"
 // @Failure      500  {object}  map[string]string  "Failed to find specific Tag !"
 // @Router       /tags/{id} [get]
@@ -150,6 +152,7 @@ func (config *TagConfig) GetAllHandler(w http.ResponseWriter, r *http.Request) {
 // @Param        id   path      string  true  "tag ID"
 // @Security     BearerAuth
 // @Success      200  {array}   model.MediaResponse
+// @Failure      400  {object}  map[string]string  "Invalid ID"
 // @Failure      404  {object}  map[string]string  "Tag not found"
 // @Failure      500  {object}  map[string]string  "Failed to fetch Media for Tag !"
 // @Router       /tags/{id}/media [get]
@@ -201,6 +204,7 @@ func (config *TagConfig) GetMediaByTagHandler(w http.ResponseWriter, r *http.Req
 // @Security     BearerAuth
 // @Success      200   {object}  model.TagResponse
 // @Failure      400   {object}  map[string]string
+// @Failure      403   {object}  map[string]string  "Access denied"
 // @Failure      404   {object}  map[string]string
 // @Failure      500   {object}  map[string]string
 // @Router       /tags/{id} [patch]
@@ -266,6 +270,8 @@ func (config *TagConfig) UpdateHandler(w http.ResponseWriter, r *http.Request) {
 // @Param        id   path      string  true  "Tag ID"
 // @Security     BearerAuth
 // @Success      200  {object}  map[string]string  "Tag deleted successfully"
+// @Failure      400  {object}  map[string]string  "Invalid ID"
+// @Failure      403  {object}  map[string]string  "Access denied"
 // @Failure      404  {object}  map[string]string  "Tag not found !"
 // @Failure      500  {object}  map[string]string  "Failed to delete Tag !"
 // @Router       /tags/{id} [delete]
