@@ -1,0 +1,18 @@
+info:
+  name: Get Fields By Media
+  type: http
+  seq: 7
+
+http:
+  method: GET
+  url: "{{basePath}}/media/:id/fields"
+  params:
+    - name: id
+      value: "1"
+      type: path
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

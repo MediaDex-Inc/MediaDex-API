@@ -1,0 +1,25 @@
+info:
+  name: Update Tag
+  type: http
+  seq: 4
+
+http:
+  method: PATCH
+  url: "{{basePath}}/tags/:id"
+  params:
+    - name: id
+      value: "1"
+      type: path
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Updated Tag",
+        "color": "#33FF57"
+      }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

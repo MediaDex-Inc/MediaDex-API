@@ -1,0 +1,26 @@
+info:
+  name: Update Media
+  type: http
+  seq: 4
+
+http:
+  method: PATCH
+  url: "{{basePath}}/media/:id"
+  params:
+    - name: id
+      value: "1"
+      type: path
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Inception Updated",
+        "status": "Completed",
+        "rating": 10
+      }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

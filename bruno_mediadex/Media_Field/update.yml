@@ -1,0 +1,27 @@
+info:
+  name: Update Media Field
+  type: http
+  seq: 4
+
+http:
+  method: PATCH
+  url: "{{basePath}}/mediaFields/:fieldID/:mediaID"
+  params:
+    - name: fieldID
+      value: "1"
+      type: path
+    - name: mediaID
+      value: "1"
+      type: path
+  body:
+    type: json
+    data: |-
+      {
+        "value": "Updated value"
+      }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

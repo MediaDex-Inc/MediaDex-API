@@ -1,18 +1,18 @@
 info:
-  name: Register
+  name: Create Media Field
   type: http
-  seq: 2
+  seq: 1
 
 http:
   method: POST
-  url: "{{basePath}}/auth/register"
+  url: "{{basePath}}/mediaFields"
   body:
     type: json
     data: |-
       {
-        "email": "jgaudin@email",
-        "password": "jgaudin",
-        "username": "jgaudin"
+        "field_id": 1,
+        "media_id": 1,
+        "value": "Some value"
       }
 
 settings:

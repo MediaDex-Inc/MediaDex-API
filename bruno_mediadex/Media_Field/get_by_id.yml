@@ -1,0 +1,21 @@
+info:
+  name: Get Media Field By Id
+  type: http
+  seq: 3
+
+http:
+  method: GET
+  url: "{{basePath}}/mediaFields/:fieldID/:mediaID"
+  params:
+    - name: fieldID
+      value: "1"
+      type: path
+    - name: mediaID
+      value: "1"
+      type: path
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -1,0 +1,18 @@
+info:
+  name: Get Tag By Id
+  type: http
+  seq: 3
+
+http:
+  method: GET
+  url: "{{basePath}}/tags/:id"
+  params:
+    - name: id
+      value: "1"
+      type: path
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

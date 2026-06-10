@@ -1,0 +1,29 @@
+info:
+  name: Create Media
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{basePath}}/media"
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Inception",
+        "status": "Completed",
+        "media_type": "Film",
+        "img_url": "https://example.com/inception.jpg",
+        "rating": 9,
+        "notes": "Great movie",
+        "description": "A mind-bending thriller",
+        "genre": "Sci-Fi",
+        "start_date": null,
+        "completion_date": null
+      }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

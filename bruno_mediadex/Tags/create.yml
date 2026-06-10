@@ -1,18 +1,17 @@
 info:
-  name: Register
+  name: Create Tag
   type: http
-  seq: 2
+  seq: 1
 
 http:
   method: POST
-  url: "{{basePath}}/auth/register"
+  url: "{{basePath}}/tags"
   body:
     type: json
     data: |-
       {
-        "email": "jgaudin@email",
-        "password": "jgaudin",
-        "username": "jgaudin"
+        "name": "Action",
+        "color": "#FF5733"
       }
 
 settings:

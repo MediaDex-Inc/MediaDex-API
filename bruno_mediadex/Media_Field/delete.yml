@@ -1,0 +1,21 @@
+info:
+  name: Delete Media Field
+  type: http
+  seq: 5
+
+http:
+  method: DELETE
+  url: "{{basePath}}/mediaFields/:fieldID/:mediaID"
+  params:
+    - name: fieldID
+      value: "1"
+      type: path
+    - name: mediaID
+      value: "1"
+      type: path
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
