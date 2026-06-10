@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"mediadex/config"
 	"mediadex/database/dbmodel"
+	"mediadex/pkg/authentication"
 	"mediadex/pkg/model"
 	"net/http"
 	"strconv"
@@ -43,8 +44,9 @@ func (config *FieldConfig) PostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Convert the requested data into dbmodel.Field type for the "Create" function.
+	userID := authentication.GetUserFromContext(r.Context())
 	field := &dbmodel.Field{
-		UserId: req.UserId,
+		UserId: userID,
 		Name:   req.Name}
 
 	// Request the DB to Create the Field.
@@ -93,6 +95,13 @@ func (config *FieldConfig) GetByIdHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	userID := authentication.GetUserFromContext(r.Context())
+	if field.UserId != userID {
+		render.Status(r, http.StatusForbidden)
+		render.JSON(w, r, map[string]string{"error": "access denied"})
+		return
+	}
+
 	// Set up to a dedicated type for the response
 	res := &model.FieldResponse{
 		UserId: field.UserId,
@@ -112,7 +121,8 @@ func (config *FieldConfig) GetByIdHandler(w http.ResponseWriter, r *http.Request
 // @Failure      500  {object}  map[string]string
 // @Router       /fields [get]
 func (config *FieldConfig) GetAllHandler(w http.ResponseWriter, r *http.Request) {
-	fields, err := config.FieldRepository.FindAll()
+	userID := authentication.GetUserFromContext(r.Context())
+	fields, err := config.FieldRepository.FindAll(userID)
 	if err != nil {
 		render.Status(r, http.StatusInternalServerError)
 		render.JSON(w, r, map[string]string{"error": "failed to fetch fields: " + err.Error()})
@@ -219,9 +229,13 @@ func (config *FieldConfig) UpdateHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if req.UserId != nil && *req.UserId > 0 {
-		existing.UserId = *req.UserId
+	userID := authentication.GetUserFromContext(r.Context())
+	if existing.UserId != userID {
+		render.Status(r, http.StatusForbidden)
+		render.JSON(w, r, map[string]string{"error": "access denied"})
+		return
 	}
+
 	if req.Name != nil && *req.Name != "" {
 		existing.Name = *req.Name
 	}
@@ -260,6 +274,20 @@ func (config *FieldConfig) DeleteHandler(w http.ResponseWriter, r *http.Request)
 	if err != nil {
 		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, map[string]string{"error": "invalid id"})
+		return
+	}
+
+	existing, err := config.FieldRepository.FindById(uint(id))
+	if err != nil {
+		render.Status(r, http.StatusNotFound)
+		render.JSON(w, r, map[string]string{"error": "field not found"})
+		return
+	}
+
+	userID := authentication.GetUserFromContext(r.Context())
+	if existing.UserId != userID {
+		render.Status(r, http.StatusForbidden)
+		render.JSON(w, r, map[string]string{"error": "access denied"})
 		return
 	}
 

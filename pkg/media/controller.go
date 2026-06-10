@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"mediadex/config"
 	"mediadex/database/dbmodel"
+	"mediadex/pkg/authentication"
 	"mediadex/pkg/model"
 	"net/http"
 	"strconv"
@@ -43,8 +44,9 @@ func (config *MediaConfig) PostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Convert the requested data into dbmodel.Media type for the "Create" function.
+	userID := authentication.GetUserFromContext(r.Context())
 	media := &dbmodel.Media{
-		UserId:         req.UserId,
+		UserId:         userID,
 		Name:           req.Name,
 		Status:         req.Status,
 		MediaType:      req.MediaType,
@@ -100,6 +102,13 @@ func (config *MediaConfig) GetByIdHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	userID := authentication.GetUserFromContext(r.Context())
+	if media.UserId != userID {
+		render.Status(r, http.StatusForbidden)
+		render.JSON(w, r, map[string]string{"error": "access denied"})
+		return
+	}
+
 	res := newMediaResponse(media)
 
 	render.Status(r, http.StatusOK)
@@ -117,7 +126,8 @@ func (config *MediaConfig) GetByIdHandler(w http.ResponseWriter, r *http.Request
 // @Router       /media [get]
 func (config *MediaConfig) GetAllHandler(w http.ResponseWriter, r *http.Request) {
 
-	medias, err := config.MediaRepository.FindAll()
+	userID := authentication.GetUserFromContext(r.Context())
+	medias, err := config.MediaRepository.FindAll(userID)
 	if err != nil {
 		render.Status(r, http.StatusInternalServerError)
 		render.JSON(w, r, map[string]string{"error": "failed to fetch media: " + err.Error()})
@@ -256,9 +266,13 @@ func (config *MediaConfig) UpdateHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if req.UserId != nil && *req.UserId > 0 {
-		existing.UserId = *req.UserId
+	userID := authentication.GetUserFromContext(r.Context())
+	if existing.UserId != userID {
+		render.Status(r, http.StatusForbidden)
+		render.JSON(w, r, map[string]string{"error": "access denied"})
+		return
 	}
+
 	if req.Name != nil && *req.Name != "" {
 		existing.Name = *req.Name
 	}
@@ -321,6 +335,20 @@ func (config *MediaConfig) DeleteHandler(w http.ResponseWriter, r *http.Request)
 	if err != nil {
 		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, map[string]string{"error": "invalid id"})
+		return
+	}
+
+	existing, err := config.MediaRepository.FindById(uint(id))
+	if err != nil {
+		render.Status(r, http.StatusNotFound)
+		render.JSON(w, r, map[string]string{"error": "media not found"})
+		return
+	}
+
+	userID := authentication.GetUserFromContext(r.Context())
+	if existing.UserId != userID {
+		render.Status(r, http.StatusForbidden)
+		render.JSON(w, r, map[string]string{"error": "access denied"})
 		return
 	}
 

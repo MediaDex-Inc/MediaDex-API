@@ -13,7 +13,7 @@ type Tag struct {
 
 type TagRepository interface {
 	Create(tag *Tag) (*Tag, error)
-	FindAll() ([]*Tag, error)
+	FindAll(userID uint) ([]*Tag, error)
 	FindById(id uint) (*Tag, error)
 	FindMediaByTag(id uint) ([]Media, error)
 	Update(tag *Tag) (*Tag, error)
@@ -37,13 +37,12 @@ func (r *tagRepository) Create(tag *Tag) (*Tag, error) {
 	return tag, nil
 }
 
-// Find all tag.
-func (r *tagRepository) FindAll() ([]*Tag, error) {
+// Find all tags for a specific user.
+func (r *tagRepository) FindAll(userID uint) ([]*Tag, error) {
 	var tags []*Tag
-	if err := r.db.Find(&tags).Error; err != nil {
+	if err := r.db.Where("user_id = ?", userID).Find(&tags).Error; err != nil {
 		return nil, err
 	}
-
 	return tags, nil
 }
 

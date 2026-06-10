@@ -15,7 +15,7 @@ type Collection struct {
 
 type CollectionRepository interface {
 	Create(collection *Collection) (*Collection, error)
-	FindAll() ([]*Collection, error)
+	FindAll(userID uint) ([]*Collection, error)
 	FindById(id uint) (*Collection, error)
 	Update(collection *Collection) (*Collection, error)
 	Delete(id uint) error
@@ -38,13 +38,12 @@ func (r *collectionRepository) Create(collection *Collection) (*Collection, erro
 	return collection, nil
 }
 
-// Find all collection.
-func (r *collectionRepository) FindAll() ([]*Collection, error) {
+// Find all collections for a specific user.
+func (r *collectionRepository) FindAll(userID uint) ([]*Collection, error) {
 	var collections []*Collection
-	if err := r.db.Find(&collections).Error; err != nil {
+	if err := r.db.Where("user_id = ?", userID).Find(&collections).Error; err != nil {
 		return nil, err
 	}
-
 	return collections, nil
 }
 

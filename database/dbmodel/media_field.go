@@ -10,7 +10,7 @@ type MediaField struct {
 
 type MediaFieldRepository interface {
 	Create(mediaField *MediaField) (*MediaField, error)
-	FindAll() ([]*MediaField, error)
+	FindAll(userID uint) ([]*MediaField, error)
 	FindById(fieldID uint, mediaID uint) (*MediaField, error)
 	Update(mediaField *MediaField) (*MediaField, error)
 	Delete(fieldID uint, mediaID uint) error
@@ -33,10 +33,12 @@ func (r *mediaFieldRepository) Create(mediaField *MediaField) (*MediaField, erro
 	return mediaField, nil
 }
 
-// Find all mediaField.
-func (r *mediaFieldRepository) FindAll() ([]*MediaField, error) {
+// Find all mediaFields for a specific user (via media ownership).
+func (r *mediaFieldRepository) FindAll(userID uint) ([]*MediaField, error) {
 	var fields []*MediaField
-	if err := r.db.Find(&fields).Error; err != nil {
+	if err := r.db.Joins("JOIN media ON media.id = media_fields.media_id AND media.deleted_at IS NULL").
+		Where("media.user_id = ?", userID).
+		Find(&fields).Error; err != nil {
 		return nil, err
 	}
 

@@ -13,7 +13,7 @@ type Field struct {
 
 type FieldRepository interface {
 	Create(field *Field) (*Field, error)
-	FindAll() ([]*Field, error)
+	FindAll(userID uint) ([]*Field, error)
 	FindById(id uint) (*Field, error)
 	FindMediaByField(id uint) ([]Media, error)
 	Update(field *Field) (*Field, error)
@@ -37,13 +37,12 @@ func (r *fieldRepository) Create(field *Field) (*Field, error) {
 	return field, nil
 }
 
-// Find all field.
-func (r *fieldRepository) FindAll() ([]*Field, error) {
+// Find all fields for a specific user.
+func (r *fieldRepository) FindAll(userID uint) ([]*Field, error) {
 	var fields []*Field
-	if err := r.db.Find(&fields).Error; err != nil {
+	if err := r.db.Where("user_id = ?", userID).Find(&fields).Error; err != nil {
 		return nil, err
 	}
-
 	return fields, nil
 }
 

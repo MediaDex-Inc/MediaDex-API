@@ -8,7 +8,6 @@ import (
 )
 
 type MediaRequest struct {
-	UserId         uint    `json:"user_id"`
 	Name           string  `json:"name"`
 	Status         string  `json:"status"`
 	MediaType      string  `json:"media_type"`
@@ -22,7 +21,6 @@ type MediaRequest struct {
 }
 
 type MediaUpdateRequest struct {
-	UserId         *uint   `json:"user_id"`
 	Name           *string `json:"name"`
 	Status         *string `json:"status"`
 	MediaType      *string `json:"media_type"`
@@ -50,9 +48,6 @@ func validateMediaFields(status *string, mediaType *string) error {
 }
 
 func (media *MediaRequest) Bind(r *http.Request) error {
-	if media.UserId == 0 {
-		return errors.New("user_id must not be null")
-	}
 	if media.Name == "" {
 		return errors.New("name must not be null")
 	}

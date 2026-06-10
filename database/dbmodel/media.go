@@ -27,7 +27,7 @@ type Media struct {
 
 type MediaRepository interface {
 	Create(media *Media) (*Media, error)
-	FindAll() ([]*Media, error)
+	FindAll(userID uint) ([]*Media, error)
 	FindById(id uint) (*Media, error)
 	FindTagsByMedia(id uint) ([]Tag, error)
 	FindFieldsByMedia(id uint) ([]Field, error)
@@ -52,13 +52,12 @@ func (r *mediaRepository) Create(media *Media) (*Media, error) {
 	return media, nil
 }
 
-// Find all media.
-func (r *mediaRepository) FindAll() ([]*Media, error) {
+// Find all media for a specific user.
+func (r *mediaRepository) FindAll(userID uint) ([]*Media, error) {
 	var medias []*Media
-	if err := r.db.Find(&medias).Error; err != nil {
+	if err := r.db.Where("user_id = ?", userID).Find(&medias).Error; err != nil {
 		return nil, err
 	}
-
 	return medias, nil
 }
 

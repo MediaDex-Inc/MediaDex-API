@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"mediadex/config"
 	"mediadex/database/dbmodel"
+	"mediadex/pkg/authentication"
 	"mediadex/pkg/model"
 	"net/http"
 	"strconv"
@@ -43,8 +44,9 @@ func (config *CollectionConfig) PostHandler(w http.ResponseWriter, r *http.Reque
 	}
 
 	// Convert the requested data into dbmodel.Collection type for the "Create" function.
+	userID := authentication.GetUserFromContext(r.Context())
 	collection := &dbmodel.Collection{
-		UserId:  req.UserId,
+		UserId:  userID,
 		Name:    req.Name,
 		Filters: req.Filters,
 	}
@@ -96,6 +98,13 @@ func (config *CollectionConfig) GetByIdHandler(w http.ResponseWriter, r *http.Re
 		return
 	}
 
+	userID := authentication.GetUserFromContext(r.Context())
+	if collection.UserId != userID {
+		render.Status(r, http.StatusForbidden)
+		render.JSON(w, r, map[string]string{"error": "access denied"})
+		return
+	}
+
 	res := &model.CollectionResponse{
 		UserId:  collection.UserId,
 		Name:    collection.Name,
@@ -117,7 +126,8 @@ func (config *CollectionConfig) GetByIdHandler(w http.ResponseWriter, r *http.Re
 // @Router       /collections [get]
 func (config *CollectionConfig) GetAllHandler(w http.ResponseWriter, r *http.Request) {
 
-	collections, err := config.CollectionRepository.FindAll()
+	userID := authentication.GetUserFromContext(r.Context())
+	collections, err := config.CollectionRepository.FindAll(userID)
 	if err != nil {
 		render.Status(r, http.StatusInternalServerError)
 		render.JSON(w, r, map[string]string{"error": "failed to fetch collections: " + err.Error()})
@@ -178,9 +188,13 @@ func (config *CollectionConfig) UpdateHandler(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	if req.UserId != nil && *req.UserId > 0 {
-		existing.UserId = *req.UserId
+	userID := authentication.GetUserFromContext(r.Context())
+	if existing.UserId != userID {
+		render.Status(r, http.StatusForbidden)
+		render.JSON(w, r, map[string]string{"error": "access denied"})
+		return
 	}
+
 	if req.Name != nil && *req.Name != "" {
 		existing.Name = *req.Name
 	}
@@ -223,6 +237,20 @@ func (config *CollectionConfig) DeleteHandler(w http.ResponseWriter, r *http.Req
 	if err != nil {
 		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, map[string]string{"error": "invalid id"})
+		return
+	}
+
+	existing, err := config.CollectionRepository.FindById(uint(id))
+	if err != nil {
+		render.Status(r, http.StatusNotFound)
+		render.JSON(w, r, map[string]string{"error": "collection not found"})
+		return
+	}
+
+	userID := authentication.GetUserFromContext(r.Context())
+	if existing.UserId != userID {
+		render.Status(r, http.StatusForbidden)
+		render.JSON(w, r, map[string]string{"error": "access denied"})
 		return
 	}
 

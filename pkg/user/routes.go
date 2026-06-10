@@ -14,11 +14,9 @@ func Routes(config *config.Config) chi.Router {
 	router := chi.NewRouter()
 
 	// Routes
-	router.Post("/", userConfig.PostHandler)
-	router.Get("/{id}", userConfig.GetByIdHandler)
-	router.Get("/", userConfig.GetAllHandler)
-	router.Patch("/{id}", userConfig.UpdateHandler)
-	router.Delete("/{id}", userConfig.DeleteHandler)
+	router.Get("/me", userConfig.GetMeHandler)
+	router.Patch("/me", userConfig.UpdateHandler)
+	router.Delete("/me", userConfig.DeleteHandler)
 
 	return router
 }

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"mediadex/config"
 	"mediadex/database/dbmodel"
+	"mediadex/pkg/authentication"
 	"mediadex/pkg/model"
 	"net/http"
 	"strconv"
@@ -40,8 +41,9 @@ func (config *TagConfig) PostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	userID := authentication.GetUserFromContext(r.Context())
 	tag := &dbmodel.Tag{
-		UserId: req.UserId,
+		UserId: userID,
 		Name:   req.Name,
 		Color:  req.Color,
 	}
@@ -90,6 +92,13 @@ func (config *TagConfig) GetByIdHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	userID := authentication.GetUserFromContext(r.Context())
+	if tag.UserId != userID {
+		render.Status(r, http.StatusForbidden)
+		render.JSON(w, r, map[string]string{"error": "access denied"})
+		return
+	}
+
 	res := &model.TagResponse{
 		ID:     tag.ID,
 		UserId: tag.UserId,
@@ -111,7 +120,8 @@ func (config *TagConfig) GetByIdHandler(w http.ResponseWriter, r *http.Request) 
 // @Failure      500  {object}  map[string]string
 // @Router       /tags [get]
 func (config *TagConfig) GetAllHandler(w http.ResponseWriter, r *http.Request) {
-	tags, err := config.TagRepository.FindAll()
+	userID := authentication.GetUserFromContext(r.Context())
+	tags, err := config.TagRepository.FindAll(userID)
 	if err != nil {
 		render.Status(r, http.StatusInternalServerError)
 		render.JSON(w, r, map[string]string{"error": "failed to fetch tags: " + err.Error()})
@@ -216,9 +226,13 @@ func (config *TagConfig) UpdateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if req.UserId != nil && *req.UserId > 0 {
-		existing.UserId = *req.UserId
+	userID := authentication.GetUserFromContext(r.Context())
+	if existing.UserId != userID {
+		render.Status(r, http.StatusForbidden)
+		render.JSON(w, r, map[string]string{"error": "access denied"})
+		return
 	}
+
 	if req.Name != nil && *req.Name != "" {
 		existing.Name = *req.Name
 	}
@@ -260,6 +274,20 @@ func (config *TagConfig) DeleteHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, map[string]string{"error": "invalid id"})
+		return
+	}
+
+	existing, err := config.TagRepository.FindById(uint(id))
+	if err != nil {
+		render.Status(r, http.StatusNotFound)
+		render.JSON(w, r, map[string]string{"error": "tag not found"})
+		return
+	}
+
+	userID := authentication.GetUserFromContext(r.Context())
+	if existing.UserId != userID {
+		render.Status(r, http.StatusForbidden)
+		render.JSON(w, r, map[string]string{"error": "access denied"})
 		return
 	}
 

@@ -5,6 +5,7 @@ import (
 	"mediadex/database/dbmodel"
 	"mediadex/pkg/model"
 	"net/http"
+	"strconv"
 
 	"github.com/go-chi/render"
 	"golang.org/x/crypto/bcrypt"
@@ -53,13 +54,14 @@ func (config *AuthConfig) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accessToken, err := GenerateToken(config.JWTSecret, user.Email)
+	userIDStr := strconv.FormatUint(uint64(user.ID), 10)
+	accessToken, err := GenerateToken(config.JWTSecret, userIDStr)
 	if err != nil {
 		render.Status(r, http.StatusInternalServerError)
 		render.JSON(w, r, map[string]string{"error": "failed to generate token"})
 		return
 	}
-	refreshToken, err := GenerateRefreshToken(config.JWTSecret, user.Email)
+	refreshToken, err := GenerateRefreshToken(config.JWTSecret, userIDStr)
 	if err != nil {
 		render.Status(r, http.StatusInternalServerError)
 		render.JSON(w, r, map[string]string{"error": "failed to generate refresh token"})
@@ -122,15 +124,14 @@ func (config *AuthConfig) RegisterHandler(w http.ResponseWriter, r *http.Request
 		render.JSON(w, r, map[string]string{"error": "failed to create user"})
 		return
 	}
-	user := &model.UserResponse{ID: res.ID, Email: res.Email, Username: res.Username}
-
-	accessToken, err := GenerateToken(config.JWTSecret, user.Email)
+	userIDStr := strconv.FormatUint(uint64(res.ID), 10)
+	accessToken, err := GenerateToken(config.JWTSecret, userIDStr)
 	if err != nil {
 		render.Status(r, http.StatusInternalServerError)
 		render.JSON(w, r, map[string]string{"error": "failed to generate token"})
 		return
 	}
-	refreshToken, err := GenerateRefreshToken(config.JWTSecret, user.Email)
+	refreshToken, err := GenerateRefreshToken(config.JWTSecret, userIDStr)
 	if err != nil {
 		render.Status(r, http.StatusInternalServerError)
 		render.JSON(w, r, map[string]string{"error": "failed to generate refresh token"})
@@ -165,26 +166,34 @@ func (config *AuthConfig) RefreshHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	email, err := ParseToken(config.JWTSecret, req.RefreshToken)
+	idStr, err := ParseToken(config.JWTSecret, req.RefreshToken)
 	if err != nil {
 		render.Status(r, http.StatusUnauthorized)
 		render.JSON(w, r, map[string]string{"error": "invalid refresh token"})
 		return
 	}
 
-	user, err := config.UserRepository.FindByEmail(email)
+	userID, err := strconv.ParseUint(idStr, 10, 64)
+	if err != nil {
+		render.Status(r, http.StatusUnauthorized)
+		render.JSON(w, r, map[string]string{"error": "invalid refresh token"})
+		return
+	}
+
+	user, err := config.UserRepository.FindById(uint(userID))
 	if err != nil {
 		render.Status(r, http.StatusNotFound)
 		render.JSON(w, r, map[string]string{"error": "user not found"})
 		return
 	}
-	accessToken, err := GenerateToken(config.JWTSecret, user.Email)
+	userIDStr := strconv.FormatUint(uint64(user.ID), 10)
+	accessToken, err := GenerateToken(config.JWTSecret, userIDStr)
 	if err != nil {
 		render.Status(r, http.StatusInternalServerError)
 		render.JSON(w, r, map[string]string{"error": "failed to generate token"})
 		return
 	}
-	refreshToken, err := GenerateRefreshToken(config.JWTSecret, user.Email)
+	refreshToken, err := GenerateRefreshToken(config.JWTSecret, userIDStr)
 	if err != nil {
 		render.Status(r, http.StatusInternalServerError)
 		render.JSON(w, r, map[string]string{"error": "failed to generate refresh token"})

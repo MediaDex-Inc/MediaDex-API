@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"mediadex/config"
 	"mediadex/database/dbmodel"
+	"mediadex/pkg/authentication"
 	"mediadex/pkg/model"
 	"net/http"
 	"strconv"
@@ -43,6 +44,30 @@ func (config *MediaFieldConfig) PostHandler(w http.ResponseWriter, r *http.Reque
 	}
 
 	// Convert the requested data into dbmodel.MediaField type for the "Create" function.
+	userID := authentication.GetUserFromContext(r.Context())
+	media, err := config.MediaRepository.FindById(req.MediaID)
+	if err != nil {
+		render.Status(r, http.StatusNotFound)
+		render.JSON(w, r, map[string]string{"error": "media not found"})
+		return
+	}
+	if media.UserId != userID {
+		render.Status(r, http.StatusForbidden)
+		render.JSON(w, r, map[string]string{"error": "access denied"})
+		return
+	}
+	field, err := config.FieldRepository.FindById(req.FieldID)
+	if err != nil {
+		render.Status(r, http.StatusNotFound)
+		render.JSON(w, r, map[string]string{"error": "field not found"})
+		return
+	}
+	if field.UserId != userID {
+		render.Status(r, http.StatusForbidden)
+		render.JSON(w, r, map[string]string{"error": "access denied"})
+		return
+	}
+
 	mediaField := &dbmodel.MediaField{
 		FieldID: req.FieldID,
 		MediaID: req.MediaID,
@@ -102,6 +127,14 @@ func (config *MediaFieldConfig) GetByIdHandler(w http.ResponseWriter, r *http.Re
 		return
 	}
 
+	userID := authentication.GetUserFromContext(r.Context())
+	media, err := config.MediaRepository.FindById(mediaField.MediaID)
+	if err != nil || media.UserId != userID {
+		render.Status(r, http.StatusForbidden)
+		render.JSON(w, r, map[string]string{"error": "access denied"})
+		return
+	}
+
 	// Set up to a dedicated type for the response
 	res := &model.MediaFieldResponse{
 		FieldID: mediaField.FieldID,
@@ -123,7 +156,8 @@ func (config *MediaFieldConfig) GetByIdHandler(w http.ResponseWriter, r *http.Re
 // @Router       /mediaFields [get]
 func (config *MediaFieldConfig) GetAllHandler(w http.ResponseWriter, r *http.Request) {
 
-	mediaFields, err := config.MediaFieldRepository.FindAll()
+	userID := authentication.GetUserFromContext(r.Context())
+	mediaFields, err := config.MediaFieldRepository.FindAll(userID)
 	if err != nil {
 		render.Status(r, http.StatusInternalServerError)
 		render.JSON(w, r, map[string]string{"error": "failed to fetch media fields: " + err.Error()})
@@ -192,6 +226,20 @@ func (config *MediaFieldConfig) UpdateHandler(w http.ResponseWriter, r *http.Req
 		return
 	}
 
+	userID := authentication.GetUserFromContext(r.Context())
+	media, err := config.MediaRepository.FindById(existing.MediaID)
+	if err != nil || media.UserId != userID {
+		render.Status(r, http.StatusForbidden)
+		render.JSON(w, r, map[string]string{"error": "access denied"})
+		return
+	}
+	field, err := config.FieldRepository.FindById(existing.FieldID)
+	if err != nil || field.UserId != userID {
+		render.Status(r, http.StatusForbidden)
+		render.JSON(w, r, map[string]string{"error": "access denied"})
+		return
+	}
+
 	if req.Value != nil && *req.Value != "" {
 		existing.Value = *req.Value
 	}
@@ -238,6 +286,21 @@ func (config *MediaFieldConfig) DeleteHandler(w http.ResponseWriter, r *http.Req
 	if err != nil {
 		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, map[string]string{"error": "invalid mediaID"})
+		return
+	}
+
+	existing, err := config.MediaFieldRepository.FindById(uint(fieldID), uint(mediaID))
+	if err != nil {
+		render.Status(r, http.StatusNotFound)
+		render.JSON(w, r, map[string]string{"error": "media field not found"})
+		return
+	}
+
+	userID := authentication.GetUserFromContext(r.Context())
+	media, err := config.MediaRepository.FindById(existing.MediaID)
+	if err != nil || media.UserId != userID {
+		render.Status(r, http.StatusForbidden)
+		render.JSON(w, r, map[string]string{"error": "access denied"})
 		return
 	}
 
