@@ -164,6 +164,19 @@ func (config *TagConfig) GetMediaByTagHandler(w http.ResponseWriter, r *http.Req
 		return
 	}
 
+	tagItem, err := config.TagRepository.FindById(uint(id))
+	if err != nil {
+		render.Status(r, http.StatusNotFound)
+		render.JSON(w, r, map[string]string{"error": "tag not found"})
+		return
+	}
+	userID := authentication.GetUserFromContext(r.Context())
+	if tagItem.UserId != userID {
+		render.Status(r, http.StatusForbidden)
+		render.JSON(w, r, map[string]string{"error": "access denied"})
+		return
+	}
+
 	mediaItems, err := config.TagRepository.FindMediaByTag(uint(id))
 	if err != nil {
 		render.Status(r, http.StatusInternalServerError)

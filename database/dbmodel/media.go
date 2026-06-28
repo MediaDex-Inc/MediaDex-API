@@ -22,7 +22,7 @@ type Media struct {
 
 	User   User     `gorm:"foreignKey:UserId;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	Tags   []*Tag   `gorm:"many2many:media_tag;constraint:OnDelete:CASCADE" json:"tags"`
-	Fields []*Field `gorm:"many2many:media_field;constraint:OnDelete:CASCADE" json:"fields"`
+	Fields []*Field `gorm:"many2many:media_fields;constraint:OnDelete:CASCADE" json:"fields"`
 }
 
 type MediaRepository interface {
@@ -31,6 +31,8 @@ type MediaRepository interface {
 	FindById(id uint) (*Media, error)
 	FindTagsByMedia(id uint) ([]Tag, error)
 	FindFieldsByMedia(id uint) ([]Field, error)
+	AddTag(mediaID, tagID uint) error
+	RemoveTag(mediaID, tagID uint) error
 	Update(media *Media) (*Media, error)
 	Delete(id uint) error
 }
@@ -97,6 +99,16 @@ func (r *mediaRepository) FindFieldsByMedia(id uint) ([]Field, error) {
 	}
 
 	return fields, nil
+}
+
+// Add a tag to a media.
+func (r *mediaRepository) AddTag(mediaID, tagID uint) error {
+	return r.db.Model(&Media{Model: gorm.Model{ID: mediaID}}).Association("Tags").Append(&Tag{Model: gorm.Model{ID: tagID}})
+}
+
+// Remove a tag from a media.
+func (r *mediaRepository) RemoveTag(mediaID, tagID uint) error {
+	return r.db.Model(&Media{Model: gorm.Model{ID: mediaID}}).Association("Tags").Delete(&Tag{Model: gorm.Model{ID: tagID}})
 }
 
 // Update the given media.

@@ -166,7 +166,7 @@ func (config *AuthConfig) RefreshHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	idStr, err := ParseToken(config.JWTSecret, req.RefreshToken)
+	idStr, err := ParseRefreshToken(config.JWTSecret, req.RefreshToken)
 	if err != nil {
 		render.Status(r, http.StatusUnauthorized)
 		render.JSON(w, r, map[string]string{"error": "invalid refresh token"})

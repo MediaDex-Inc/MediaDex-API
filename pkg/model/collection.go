@@ -27,7 +27,8 @@ func (collection *CollectionRequest) Bind(r *http.Request) error {
 }
 
 type CollectionResponse struct {
-	UserId  uint   `json:"user_id"`
-	Name    string `json:"name"`
-	Filters string `json:"filters"`
+	CollectionId uint   `json:"collection_id"`
+	UserId       uint   `json:"user_id"`
+	Name         string `json:"name"`
+	Filters      string `json:"filters"`
 }

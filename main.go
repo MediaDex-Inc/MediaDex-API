@@ -27,7 +27,7 @@ func Routes(configuration *config.Config) *chi.Mux {
 		AllowedOrigins:   []string{"*"},
 		AllowedHeaders:   []string{"*"},
 		AllowCredentials: true,
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE"},
 	}).Handler)
 
 	// Swagger endpoint

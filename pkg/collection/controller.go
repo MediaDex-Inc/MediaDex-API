@@ -60,9 +60,10 @@ func (config *CollectionConfig) PostHandler(w http.ResponseWriter, r *http.Reque
 	}
 
 	res := &model.CollectionResponse{
-		UserId:  savedCollection.UserId,
-		Name:    savedCollection.Name,
-		Filters: savedCollection.Filters,
+		CollectionId: savedCollection.ID,
+		UserId:       savedCollection.UserId,
+		Name:         savedCollection.Name,
+		Filters:      savedCollection.Filters,
 	}
 
 	render.Status(r, http.StatusOK)
@@ -108,9 +109,10 @@ func (config *CollectionConfig) GetByIdHandler(w http.ResponseWriter, r *http.Re
 	}
 
 	res := &model.CollectionResponse{
-		UserId:  collection.UserId,
-		Name:    collection.Name,
-		Filters: collection.Filters,
+		CollectionId: collection.ID,
+		UserId:       collection.UserId,
+		Name:         collection.Name,
+		Filters:      collection.Filters,
 	}
 
 	render.Status(r, http.StatusOK)
@@ -136,13 +138,14 @@ func (config *CollectionConfig) GetAllHandler(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	var result []model.CollectionResponse
+	result := make([]model.CollectionResponse, 0, len(collections))
 
 	for _, collection := range collections {
 		result = append(result, model.CollectionResponse{
-			UserId:  collection.UserId,
-			Name:    collection.Name,
-			Filters: collection.Filters,
+			CollectionId: collection.ID,
+			UserId:       collection.UserId,
+			Name:         collection.Name,
+			Filters:      collection.Filters,
 		})
 	}
 
@@ -213,9 +216,10 @@ func (config *CollectionConfig) UpdateHandler(w http.ResponseWriter, r *http.Req
 	}
 
 	res := &model.CollectionResponse{
-		UserId:  updatedCollection.UserId,
-		Name:    updatedCollection.Name,
-		Filters: updatedCollection.Filters,
+		CollectionId: updatedCollection.ID,
+		UserId:       updatedCollection.UserId,
+		Name:         updatedCollection.Name,
+		Filters:      updatedCollection.Filters,
 	}
 
 	render.Status(r, http.StatusOK)

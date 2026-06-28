@@ -165,6 +165,19 @@ func (config *MediaConfig) GetTagsByMediaHandler(w http.ResponseWriter, r *http.
 		return
 	}
 
+	mediaItem, err := config.MediaRepository.FindById(uint(id))
+	if err != nil {
+		render.Status(r, http.StatusNotFound)
+		render.JSON(w, r, map[string]string{"error": "media not found"})
+		return
+	}
+	userID := authentication.GetUserFromContext(r.Context())
+	if mediaItem.UserId != userID {
+		render.Status(r, http.StatusForbidden)
+		render.JSON(w, r, map[string]string{"error": "access denied"})
+		return
+	}
+
 	tags, err := config.MediaRepository.FindTagsByMedia(uint(id))
 	if err != nil {
 		render.Status(r, http.StatusInternalServerError)
@@ -206,6 +219,19 @@ func (config *MediaConfig) GetFieldsByMediaHandler(w http.ResponseWriter, r *htt
 		return
 	}
 
+	mediaItem, err := config.MediaRepository.FindById(uint(id))
+	if err != nil {
+		render.Status(r, http.StatusNotFound)
+		render.JSON(w, r, map[string]string{"error": "media not found"})
+		return
+	}
+	userID := authentication.GetUserFromContext(r.Context())
+	if mediaItem.UserId != userID {
+		render.Status(r, http.StatusForbidden)
+		render.JSON(w, r, map[string]string{"error": "access denied"})
+		return
+	}
+
 	fields, err := config.MediaRepository.FindFieldsByMedia(uint(id))
 	if err != nil {
 		render.Status(r, http.StatusInternalServerError)
@@ -213,16 +239,158 @@ func (config *MediaConfig) GetFieldsByMediaHandler(w http.ResponseWriter, r *htt
 		return
 	}
 
-	res := make([]model.FieldResponse, len(fields))
+	mediaFields, err := config.MediaFieldRepository.FindByMediaId(uint(id))
+	if err != nil {
+		render.Status(r, http.StatusInternalServerError)
+		render.JSON(w, r, map[string]string{"error": "failed to fetch field values for media: " + err.Error()})
+		return
+	}
+
+	// Index values by fieldID for O(1) lookup.
+	valueByFieldID := make(map[uint]string, len(mediaFields))
+	for _, mf := range mediaFields {
+		valueByFieldID[mf.FieldID] = mf.Value
+	}
+
+	res := make([]model.FieldValueResponse, len(fields))
 	for i, f := range fields {
-		res[i] = model.FieldResponse{
-			UserId: f.UserId,
-			Name:   f.Name,
+		res[i] = model.FieldValueResponse{
+			FieldID: f.ID,
+			Name:    f.Name,
+			Value:   valueByFieldID[f.ID],
 		}
 	}
 
 	render.Status(r, http.StatusOK)
 	render.JSON(w, r, res)
+}
+
+// AddTagHandler godoc
+// @Summary      Add a tag to a media
+// @Description  Associates an existing tag with a media entry
+// @Tags         Media
+// @Produce      json
+// @Param        id     path      string  true  "Media ID"
+// @Param        tagId  path      string  true  "Tag ID"
+// @Security     BearerAuth
+// @Success      200  {object}  map[string]string  "Tag added successfully"
+// @Failure      400  {object}  map[string]string  "Invalid ID"
+// @Failure      403  {object}  map[string]string  "Access denied"
+// @Failure      404  {object}  map[string]string  "Media or Tag not found"
+// @Failure      500  {object}  map[string]string  "Failed to add tag"
+// @Router       /media/{id}/tags/{tagId} [post]
+func (config *MediaConfig) AddTagHandler(w http.ResponseWriter, r *http.Request) {
+	mediaID, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil {
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, map[string]string{"error": "invalid media id"})
+		return
+	}
+	tagID, err := strconv.Atoi(chi.URLParam(r, "tagId"))
+	if err != nil {
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, map[string]string{"error": "invalid tag id"})
+		return
+	}
+
+	userID := authentication.GetUserFromContext(r.Context())
+
+	media, err := config.MediaRepository.FindById(uint(mediaID))
+	if err != nil {
+		render.Status(r, http.StatusNotFound)
+		render.JSON(w, r, map[string]string{"error": "media not found"})
+		return
+	}
+	if media.UserId != userID {
+		render.Status(r, http.StatusForbidden)
+		render.JSON(w, r, map[string]string{"error": "access denied"})
+		return
+	}
+
+	tag, err := config.TagRepository.FindById(uint(tagID))
+	if err != nil {
+		render.Status(r, http.StatusNotFound)
+		render.JSON(w, r, map[string]string{"error": "tag not found"})
+		return
+	}
+	if tag.UserId != userID {
+		render.Status(r, http.StatusForbidden)
+		render.JSON(w, r, map[string]string{"error": "access denied"})
+		return
+	}
+
+	if err := config.MediaRepository.AddTag(uint(mediaID), uint(tagID)); err != nil {
+		render.Status(r, http.StatusInternalServerError)
+		render.JSON(w, r, map[string]string{"error": "failed to add tag: " + err.Error()})
+		return
+	}
+
+	render.Status(r, http.StatusOK)
+	render.JSON(w, r, map[string]string{"message": "tag added successfully"})
+}
+
+// RemoveTagHandler godoc
+// @Summary      Remove a tag from a media
+// @Description  Dissociates an existing tag from a media entry
+// @Tags         Media
+// @Produce      json
+// @Param        id     path      string  true  "Media ID"
+// @Param        tagId  path      string  true  "Tag ID"
+// @Security     BearerAuth
+// @Success      200  {object}  map[string]string  "Tag removed successfully"
+// @Failure      400  {object}  map[string]string  "Invalid ID"
+// @Failure      403  {object}  map[string]string  "Access denied"
+// @Failure      404  {object}  map[string]string  "Media or Tag not found"
+// @Failure      500  {object}  map[string]string  "Failed to remove tag"
+// @Router       /media/{id}/tags/{tagId} [delete]
+func (config *MediaConfig) RemoveTagHandler(w http.ResponseWriter, r *http.Request) {
+	mediaID, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil {
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, map[string]string{"error": "invalid media id"})
+		return
+	}
+	tagID, err := strconv.Atoi(chi.URLParam(r, "tagId"))
+	if err != nil {
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, map[string]string{"error": "invalid tag id"})
+		return
+	}
+
+	userID := authentication.GetUserFromContext(r.Context())
+
+	media, err := config.MediaRepository.FindById(uint(mediaID))
+	if err != nil {
+		render.Status(r, http.StatusNotFound)
+		render.JSON(w, r, map[string]string{"error": "media not found"})
+		return
+	}
+	if media.UserId != userID {
+		render.Status(r, http.StatusForbidden)
+		render.JSON(w, r, map[string]string{"error": "access denied"})
+		return
+	}
+
+	tag, err := config.TagRepository.FindById(uint(tagID))
+	if err != nil {
+		render.Status(r, http.StatusNotFound)
+		render.JSON(w, r, map[string]string{"error": "tag not found"})
+		return
+	}
+	if tag.UserId != userID {
+		render.Status(r, http.StatusForbidden)
+		render.JSON(w, r, map[string]string{"error": "access denied"})
+		return
+	}
+
+	if err := config.MediaRepository.RemoveTag(uint(mediaID), uint(tagID)); err != nil {
+		render.Status(r, http.StatusInternalServerError)
+		render.JSON(w, r, map[string]string{"error": "failed to remove tag: " + err.Error()})
+		return
+	}
+
+	render.Status(r, http.StatusOK)
+	render.JSON(w, r, map[string]string{"message": "tag removed successfully"})
 }
 
 // UpdateHandler godoc

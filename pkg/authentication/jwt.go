@@ -1,6 +1,7 @@
 package authentication
 
 import (
+	"errors"
 	"strings"
 	"time"
 
@@ -9,8 +10,9 @@ import (
 
 func GenerateToken(secret, id string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"id":  id,
-		"exp": time.Now().Add(time.Hour * 2).Unix(),
+		"id":   id,
+		"type": "access",
+		"exp":  time.Now().Add(time.Hour * 2).Unix(),
 	})
 
 	return token.SignedString([]byte(secret))
@@ -18,14 +20,15 @@ func GenerateToken(secret, id string) (string, error) {
 
 func GenerateRefreshToken(secret, id string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"id":  id,
-		"exp": time.Now().Add(time.Hour * 3).Unix(),
+		"id":   id,
+		"type": "refresh",
+		"exp":  time.Now().Add(time.Hour * 3).Unix(),
 	})
 
 	return token.SignedString([]byte(secret))
 }
 
-func ParseToken(secret, tokenString string) (string, error) {
+func parseTokenWithType(secret, tokenString, requiredType string) (string, error) {
 	tokenString = strings.TrimPrefix(tokenString, "Bearer ")
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		return []byte(secret), nil
@@ -36,7 +39,18 @@ func ParseToken(secret, tokenString string) (string, error) {
 	}
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		if claims["type"] != requiredType {
+			return "", errors.New("invalid token type")
+		}
 		return claims["id"].(string), nil
 	}
-	return "", err
+	return "", errors.New("invalid token")
+}
+
+func ParseToken(secret, tokenString string) (string, error) {
+	return parseTokenWithType(secret, tokenString, "access")
+}
+
+func ParseRefreshToken(secret, tokenString string) (string, error) {
+	return parseTokenWithType(secret, tokenString, "refresh")
 }

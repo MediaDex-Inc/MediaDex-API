@@ -12,6 +12,7 @@ type MediaFieldRepository interface {
 	Create(mediaField *MediaField) (*MediaField, error)
 	FindAll(userID uint) ([]*MediaField, error)
 	FindById(fieldID uint, mediaID uint) (*MediaField, error)
+	FindByMediaId(mediaID uint) ([]*MediaField, error)
 	Update(mediaField *MediaField) (*MediaField, error)
 	Delete(fieldID uint, mediaID uint) error
 }
@@ -43,6 +44,16 @@ func (r *mediaFieldRepository) FindAll(userID uint) ([]*MediaField, error) {
 	}
 
 	return fields, nil
+}
+
+// Find all mediaFields for a specific media.
+func (r *mediaFieldRepository) FindByMediaId(mediaID uint) ([]*MediaField, error) {
+	var mediaFields []*MediaField
+	if err := r.db.Where("media_id = ?", mediaID).Find(&mediaFields).Error; err != nil {
+		return nil, err
+	}
+
+	return mediaFields, nil
 }
 
 // Find a mediaField by his fieldID and mediaID.

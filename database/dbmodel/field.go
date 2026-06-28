@@ -8,7 +8,7 @@ type Field struct {
 	Name   string `json:"name"`
 
 	User  User     `gorm:"foreignKey:UserId;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	Media []*Media `gorm:"many2many:media_field;constraint:OnDelete:CASCADE" json:"media"`
+	Media []*Media `gorm:"many2many:media_fields;constraint:OnDelete:CASCADE" json:"media"`
 }
 
 type FieldRepository interface {

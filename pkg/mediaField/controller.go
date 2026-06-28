@@ -168,7 +168,7 @@ func (config *MediaFieldConfig) GetAllHandler(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	var result []model.MediaFieldResponse
+	result := make([]model.MediaFieldResponse, 0, len(mediaFields))
 
 	for _, mediaField := range mediaFields {
 		res := model.MediaFieldResponse{

@@ -59,8 +59,10 @@ func (config *FieldConfig) PostHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Set up to a dedicated type for the response.
 	res := &model.FieldResponse{
-		UserId: savedField.UserId,
-		Name:   savedField.Name}
+		FieldId: savedField.ID,
+		UserId:  savedField.UserId,
+		Name:    savedField.Name,
+	}
 
 	render.Status(r, http.StatusOK)
 	render.JSON(w, r, res)
@@ -106,8 +108,10 @@ func (config *FieldConfig) GetByIdHandler(w http.ResponseWriter, r *http.Request
 
 	// Set up to a dedicated type for the response
 	res := &model.FieldResponse{
-		UserId: field.UserId,
-		Name:   field.Name}
+		FieldId: field.ID,
+		UserId:  field.UserId,
+		Name:    field.Name,
+	}
 
 	render.Status(r, http.StatusOK)
 	render.JSON(w, r, res)
@@ -134,8 +138,9 @@ func (config *FieldConfig) GetAllHandler(w http.ResponseWriter, r *http.Request)
 	res := make([]model.FieldResponse, len(fields))
 	for i, field := range fields {
 		res[i] = model.FieldResponse{
-			UserId: field.UserId,
-			Name:   field.Name,
+			FieldId: field.ID,
+			UserId:  field.UserId,
+			Name:    field.Name,
 		}
 	}
 
@@ -160,6 +165,19 @@ func (config *FieldConfig) GetMediaByFieldHandler(w http.ResponseWriter, r *http
 	if err != nil {
 		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, map[string]string{"error": "invalid id"})
+		return
+	}
+
+	fieldItem, err := config.FieldRepository.FindById(uint(id))
+	if err != nil {
+		render.Status(r, http.StatusNotFound)
+		render.JSON(w, r, map[string]string{"error": "field not found"})
+		return
+	}
+	userID := authentication.GetUserFromContext(r.Context())
+	if fieldItem.UserId != userID {
+		render.Status(r, http.StatusForbidden)
+		render.JSON(w, r, map[string]string{"error": "access denied"})
 		return
 	}
 
@@ -252,8 +270,9 @@ func (config *FieldConfig) UpdateHandler(w http.ResponseWriter, r *http.Request)
 	}
 
 	res := model.FieldResponse{
-		UserId: updatedField.UserId,
-		Name:   updatedField.Name,
+		FieldId: updatedField.ID,
+		UserId:  updatedField.UserId,
+		Name:    updatedField.Name,
 	}
 
 	render.Status(r, http.StatusOK)

@@ -22,6 +22,14 @@ func (field *FieldRequest) Bind(r *http.Request) error {
 }
 
 type FieldResponse struct {
-	UserId uint   `json:"user_id"`
-	Name   string `json:"name"`
+	FieldId uint   `json:"field_id"`
+	UserId  uint   `json:"user_id"`
+	Name    string `json:"name"`
+}
+
+// FieldValueResponse is used when fetching fields with their associated value for a given media.
+type FieldValueResponse struct {
+	FieldID uint   `json:"field_id"`
+	Name    string `json:"name"`
+	Value   string `json:"value"`
 }
