@@ -31,10 +31,8 @@ type Config struct {
 }
 
 func initEnv(fileName string) (Constants, error) {
-	// Load .env file
-	if err := godotenv.Load(fileName); err != nil {
-		return Constants{}, fmt.Errorf("error loading env file %q: %w", fileName, err)
-	}
+	// Load .env file if present (ignored in Docker where vars are injected via environment)
+	godotenv.Load(fileName)
 
 	var constants Constants
 
