@@ -35,5 +35,3 @@ services:
 
 volumes:
   postgres_data:
-    external: true
-    name: mediadex_postgres_data
