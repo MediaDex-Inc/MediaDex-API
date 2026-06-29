@@ -81,7 +81,7 @@ func (r *fieldRepository) Update(field *Field) (*Field, error) {
 
 // Delete a field by his id.
 func (r *fieldRepository) Delete(id uint) error {
-	if err := r.db.Delete(Field{}, id).Error; err != nil {
+	if err := r.db.Delete(&Field{}, id).Error; err != nil {
 		return err
 	}
 

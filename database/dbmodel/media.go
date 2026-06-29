@@ -122,7 +122,7 @@ func (r *mediaRepository) Update(media *Media) (*Media, error) {
 
 // Delete a media by is id.
 func (r *mediaRepository) Delete(id uint) error {
-	if err := r.db.Delete(Media{}, id).Error; err != nil {
+	if err := r.db.Delete(&Media{}, id).Error; err != nil {
 		return err
 	}
 
