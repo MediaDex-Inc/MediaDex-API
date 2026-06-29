@@ -44,19 +44,34 @@ go mod download
 
 ## Configuration
 
-Copy the `.env.example` file and rename it to `.env` at the root of the project:
+Copy the `.env.example` file and rename it to `.env` at the root of the project and fill in the values.
+
+| Variable            | Description                                                    |
+|---------------------|----------------------------------------------------------------|
+| `PORT`              | HTTP server listening port                                     |
+| `JWT_SECRET_KEY`    | JWT token signing secret key                                   |
+| `CONNECTION_STRING` | PostgreSQL connection URL — **used for local runs only**       |
+| `POSTGRES_USER`     | PostgreSQL username — **used by Docker Compose only**          |
+| `POSTGRES_PASSWORD` | PostgreSQL password — **used by Docker Compose only**          |
+| `POSTGRES_DB`       | PostgreSQL database name — **used by Docker Compose only**     |
+
+**Local run** — set `CONNECTION_STRING` to point to your PostgreSQL instance:
 
 ```env
 PORT=8080
 JWT_SECRET_KEY=your_long_and_secure_jwt_secret
-CONNECTION_STRING=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable&TimeZone=UTC
+CONNECTION_STRING=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${URL + PORT}/${POSTGRES_DB}?sslmode=disable&TimeZone=UTC
 ```
 
-| Variable            | Description                          |
-|---------------------|--------------------------------------|
-| `PORT`              | HTTP server listening port           |
-| `JWT_SECRET_KEY`    | JWT token signing secret key         |
-| `CONNECTION_STRING` | PostgreSQL connection URL            |
+**Docker Compose** — set the `POSTGRES_*` variables instead; `CONNECTION_STRING` is built automatically by the Compose file:
+
+```env
+PORT=8080
+JWT_SECRET_KEY=your_long_and_secure_jwt_secret
+POSTGRES_USER=mediadex
+POSTGRES_PASSWORD=your_postgres_password
+POSTGRES_DB=mediadex
+```
 
 ## Running
 
@@ -70,6 +85,14 @@ The server starts on the configured port:
 Server running on http://localhost:8080
 Swagger UI available at http://localhost:8080/swagger/index.html
 ```
+
+## Docker Compose Deployment
+
+```bash
+docker compose up -d
+```
+
+The API will be available at `http://localhost:<PORT>` once the PostgreSQL health check passes.
 
 ## Project Structure
 
