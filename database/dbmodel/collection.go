@@ -68,7 +68,7 @@ func (r *collectionRepository) Update(collection *Collection) (*Collection, erro
 
 // Delete a collection by his id.
 func (r *collectionRepository) Delete(id uint) error {
-	if err := r.db.Delete(Collection{}, id).Error; err != nil {
+	if err := r.db.Delete(&Collection{}, id).Error; err != nil {
 		return err
 	}
 

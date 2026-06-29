@@ -87,7 +87,7 @@ func (r *userRepository) Update(user *User) (*User, error) {
 
 // Delete a user by is id.
 func (r *userRepository) Delete(id uint) error {
-	if err := r.db.Delete(User{}, id).Error; err != nil {
+	if err := r.db.Delete(&User{}, id).Error; err != nil {
 		return err
 	}
 
