@@ -81,7 +81,7 @@ func (r *tagRepository) Update(tag *Tag) (*Tag, error) {
 
 // Delete a tag by is id.
 func (r *tagRepository) Delete(id uint) error {
-	if err := r.db.Delete(Tag{}, id).Error; err != nil {
+	if err := r.db.Delete(&Tag{}, id).Error; err != nil {
 		return err
 	}
 
