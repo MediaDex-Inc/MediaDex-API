@@ -16,6 +16,7 @@ http:
       {
         "name": "Updated Field"
       }
+  auth: inherit
 
 settings:
   encodeUrl: true

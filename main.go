@@ -24,14 +24,10 @@ func Routes(configuration *config.Config) *chi.Mux {
 
 	// Initialize CORS
 	router.Use(cors.New(cors.Options{
-		AllowedOrigins: []string{
-			"http://localhost:8080",
-			"http://127.0.0.1:8080",
-			"http://mediadex-api.ddns.net:38080",
-		},
-		AllowedHeaders:   []string{"*"},
-		AllowCredentials: true,
-		AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE"},
+		AllowedOrigins:   []string{"*"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type"},
+		AllowCredentials: false,
 	}).Handler)
 
 	// Swagger endpoint

@@ -21,6 +21,7 @@ http:
         "start_date": null,
         "completion_date": null
       }
+  auth: inherit
 
 settings:
   encodeUrl: true

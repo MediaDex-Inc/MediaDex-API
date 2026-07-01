@@ -17,6 +17,7 @@ http:
         "name": "Updated Collection",
         "filters": "sci-fi"
       }
+  auth: inherit
 
 settings:
   encodeUrl: true

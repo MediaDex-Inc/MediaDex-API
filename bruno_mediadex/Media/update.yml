@@ -18,6 +18,7 @@ http:
         "status": "Completed",
         "rating": 10
       }
+  auth: inherit
 
 settings:
   encodeUrl: true

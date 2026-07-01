@@ -19,6 +19,7 @@ http:
       {
         "value": "Updated value"
       }
+  auth: inherit
 
 settings:
   encodeUrl: true

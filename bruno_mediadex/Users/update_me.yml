@@ -14,6 +14,7 @@ http:
         "username": "newusername",
         "password": "newpassword"
       }
+  auth: inherit
 
 settings:
   encodeUrl: true

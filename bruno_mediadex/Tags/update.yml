@@ -17,6 +17,7 @@ http:
         "name": "Updated Tag",
         "color": "#33FF57"
       }
+  auth: inherit
 
 settings:
   encodeUrl: true

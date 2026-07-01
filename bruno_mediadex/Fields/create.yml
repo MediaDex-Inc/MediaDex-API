@@ -12,6 +12,7 @@ http:
       {
         "name": "My Field"
       }
+  auth: inherit
 
 settings:
   encodeUrl: true

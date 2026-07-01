@@ -13,6 +13,7 @@ http:
         "name": "My Collection",
         "filters": "action,adventure"
       }
+  auth: inherit
 
 settings:
   encodeUrl: true
